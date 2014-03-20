@@ -17,12 +17,12 @@
 
 #ifndef _MSC_VER
 
-#include "insanity/bind.h"
+#include "pkix/bind.h"
 
-namespace insanity {
+namespace mozilla { namespace pkix {
 
 Placeholder1 _1;
-  
-} // namespace insanity
+
+} } // namespace mozilla::pkix
 
 #endif // _MSC_VER

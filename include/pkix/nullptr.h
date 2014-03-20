@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-#ifndef insanity_pkix__nullptr_h
-#define insanity_pkix__nullptr_h
+#ifndef mozilla_pkix__nullptr_h
+#define mozilla_pkix__nullptr_h
 
 // GCC does not understand nullptr until 4.6
 #if defined(__GNUC__) && !defined(__clang__)
@@ -25,4 +25,4 @@
 #endif
 #endif
 
-#endif // insanity_pkix__nullptr_h
+#endif // mozilla_pkix__nullptr_h

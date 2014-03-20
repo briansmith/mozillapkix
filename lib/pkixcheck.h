@@ -15,13 +15,13 @@
  * limitations under the License.
  */
 
-#ifndef insanity__pkixcheck_h
-#define insanity__pkixcheck_h
+#ifndef mozilla_pkix__pkixcheck_h
+#define mozilla_pkix__pkixcheck_h
 
 #include "pkixutil.h"
 #include "certt.h"
 
-namespace insanity { namespace pkix {
+namespace mozilla { namespace pkix {
 
 Result CheckIssuerIndependentProperties(
           TrustDomain& trustDomain,
@@ -36,6 +36,6 @@ Result CheckIssuerIndependentProperties(
 
 Result CheckNameConstraints(BackCert& cert);
 
-} } // namespace insanity::pkix
+} } // namespace mozilla::pkix
 
-#endif // insanity__pkixcheck_h
+#endif // mozilla_pkix__pkixcheck_h
