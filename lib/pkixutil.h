@@ -202,6 +202,9 @@ DaysBeforeYear(unsigned int year)
        + ((year - 1u) / 400u); // except years divisible by 400.
 }
 
+Result CheckSubjectPublicKeyInfo(Reader& input, TrustDomain& trustDomain,
+                                 EndEntityOrCA endEntityOrCA);
+
 static const size_t MAX_DIGEST_SIZE_IN_BYTES = 512 / 8; // sha-512
 
 Result DigestSignedData(TrustDomain& trustDomain,
