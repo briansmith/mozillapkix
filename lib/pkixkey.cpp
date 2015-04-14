@@ -28,8 +28,7 @@ namespace mozilla { namespace pkix {
 
 // RFC 5280 Section 4.1.2.7 Subject Public Key Info
 Result
-CheckSubjectPublicKeyInfo(Reader& input, TrustDomain& trustDomain,
-                          EndEntityOrCA endEntityOrCA)
+PublicKey::ParseAndCheck(TrustDomain& trustDomain)
 {
   // Here, we validate the syntax and do very basic semantic validation of the
   // public key of the certificate. The intention here is to filter out the
@@ -45,11 +44,16 @@ CheckSubjectPublicKeyInfo(Reader& input, TrustDomain& trustDomain,
 
   Reader algorithm;
   Input subjectPublicKey;
-  Result rv = der::ExpectTagAndGetValue(input, der::SEQUENCE, algorithm);
-  if (rv != Success) {
-    return rv;
-  }
-  rv = der::BitStringWithNoUnusedBits(input, subjectPublicKey);
+
+  Reader input(subjectPublicKeyInfo);
+  Result rv = der::Nested(input, der::SEQUENCE,
+                          [&algorithm, &subjectPublicKey](Reader& r) {
+    Result rv = der::ExpectTagAndGetValue(r, der::SEQUENCE, algorithm);
+    if (rv != Success) {
+      return rv;
+    }
+    return der::BitStringWithNoUnusedBits(r, subjectPublicKey);
+  });
   if (rv != Success) {
     return rv;
   }
@@ -79,6 +83,8 @@ CheckSubjectPublicKeyInfo(Reader& input, TrustDomain& trustDomain,
   };
 
   if (algorithmOID.MatchRest(id_ecPublicKey)) {
+    type = Type::ECC;
+
     // An id-ecPublicKey AlgorithmIdentifier has a parameter that identifes
     // the curve being used. Although RFC 5480 specifies multiple forms, we
     // only supported the NamedCurve form, where the curve is identified by an
@@ -111,7 +117,6 @@ CheckSubjectPublicKeyInfo(Reader& input, TrustDomain& trustDomain,
 
     // Matching is attempted based on a rough estimate of the commonality of the
     // elliptic curve, to minimize the number of MatchRest calls.
-    NamedCurve curve;
     unsigned int bits;
     if (namedCurveOIDValue.MatchRest(secp256r1)) {
       curve = NamedCurve::secp256r1;
@@ -157,6 +162,8 @@ CheckSubjectPublicKeyInfo(Reader& input, TrustDomain& trustDomain,
     // until signature verification. This means that if we never verify a
     // signature, we'll never fully check whether the public key is valid.
   } else if (algorithmOID.MatchRest(rsaEncryption)) {
+    type = Type::RSA;
+
     // RFC 3279 Section 2.3.1 says "The parameters field MUST have ASN.1 type
     // NULL for this algorithm identifier."
     rv = der::ExpectTagAndEmptyValue(algorithm, der::NULLTag);
@@ -168,8 +175,7 @@ CheckSubjectPublicKeyInfo(Reader& input, TrustDomain& trustDomain,
     //    modulus            INTEGER,    --n
     //    publicExponent     INTEGER  }  --e
     rv = der::Nested(subjectPublicKeyReader, der::SEQUENCE,
-                     [&trustDomain, endEntityOrCA](Reader& r) {
-      Input modulus;
+                     [this, &trustDomain](Reader& r) {
       Input::size_type modulusSignificantBytes;
       Result rv = der::PositiveInteger(r, modulus, &modulusSignificantBytes);
       if (rv != Success) {
@@ -184,7 +190,6 @@ CheckSubjectPublicKeyInfo(Reader& input, TrustDomain& trustDomain,
 
       // XXX: We don't allow the TrustDomain to validate the exponent.
       // XXX: We don't do our own sanity checking of the exponent.
-      Input exponent;
       return der::PositiveInteger(r, exponent);
     });
     if (rv != Success) {
@@ -247,18 +252,55 @@ DigestSignedData(TrustDomain& trustDomain,
 }
 
 Result
-VerifySignedDigest(TrustDomain& trustDomain,
-                   der::PublicKeyAlgorithm publicKeyAlg,
-                   const SignedDigest& signedDigest,
-                   Input signerSubjectPublicKeyInfo)
+PublicKey::VerifySignedDigest(TrustDomain& trustDomain,
+                              der::PublicKeyAlgorithm signtaurePublicKeyAlg,
+                              const SignedDigest& signedDigest) const
 {
-  switch (publicKeyAlg) {
-    case der::PublicKeyAlgorithm::ECDSA:
-      return trustDomain.VerifyECDSASignedDigest(signedDigest,
-                                                 signerSubjectPublicKeyInfo);
-    case der::PublicKeyAlgorithm::RSA_PKCS1:
+  switch (type) {
+    case Type::ECC:
+    {
+      if (signtaurePublicKeyAlg != der::PublicKeyAlgorithm::ECDSA) {
+        return Result::ERROR_BAD_SIGNATURE;
+      }
+
+      Reader signatureReader(signedDigest.signature);
+      Input r;
+      Input s;
+      Result rv = der::Nested(signatureReader, der::SEQUENCE,
+                              [&r, &s](Reader& rs) -> Result {
+        Result rv = der::PositiveInteger(rs, r);
+        if (rv != Success) {
+          return rv;
+        }
+        return der::PositiveInteger(rs, s);
+      });
+      if (rv == Success) {
+        rv = der::End(signatureReader);
+      }
+      if (rv != Success) {
+        if (rv == Result::ERROR_BAD_DER) {
+          rv = Result::ERROR_BAD_SIGNATURE;
+        }
+        return rv;
+      }
+
+      return trustDomain.VerifyECDSASignedDigest(signedDigest, r, s,
+                                                 subjectPublicKeyInfo,
+                                                 curve, publicPoint);
+    }
+
+    case Type::RSA:
+      if (signtaurePublicKeyAlg != der::PublicKeyAlgorithm::RSA_PKCS1) {
+        return Result::ERROR_BAD_SIGNATURE;
+      }
+
       return trustDomain.VerifyRSAPKCS1SignedDigest(signedDigest,
-                                                    signerSubjectPublicKeyInfo);
+                                                    subjectPublicKeyInfo,
+                                                    modulus, exponent);
+
+    case Type::Unparsed:
+      return Result::FATAL_ERROR_INVALID_STATE;
+
     MOZILLA_PKIX_UNREACHABLE_DEFAULT_ENUM
   }
 }
@@ -266,7 +308,7 @@ VerifySignedDigest(TrustDomain& trustDomain,
 Result
 VerifySignedData(TrustDomain& trustDomain,
                  const der::SignedDataWithSignature& signedData,
-                 Input signerSubjectPublicKeyInfo)
+                 const PublicKey& publicKey)
 {
   uint8_t digestBuf[MAX_DIGEST_SIZE_IN_BYTES];
   der::PublicKeyAlgorithm publicKeyAlg;
@@ -276,8 +318,7 @@ VerifySignedData(TrustDomain& trustDomain,
   if (rv != Success) {
     return rv;
   }
-  return VerifySignedDigest(trustDomain, publicKeyAlg, signedDigest,
-                            signerSubjectPublicKeyInfo);
+  return publicKey.VerifySignedDigest(trustDomain, publicKeyAlg, signedDigest);
 }
 
 } } // namespace mozilla::pkix

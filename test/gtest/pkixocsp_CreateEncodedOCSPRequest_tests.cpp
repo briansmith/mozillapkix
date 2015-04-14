@@ -93,6 +93,11 @@ TEST_F(pkixocsp_CreateEncodedOCSPRequest, ChildCertLongSerialNumberTest)
   Input spki;
   ASSERT_EQ(Success, spki.Init(issuerSPKI.data(), issuerSPKI.length()));
 
+  PublicKey publicKey;
+  ASSERT_EQ(Success, publicKey.Init(EndEntityOrCA::MustBeCA, spki));
+  MockCertIDCreationTrustDomain mockCERTIDTrustDomain;
+  ASSERT_EQ(Success, publicKey.ParseAndCheck(mockCERTIDTrustDomain));
+
   Input serialNumber;
   ASSERT_EQ(Success, serialNumber.Init(serialNumberString.data(),
                                        serialNumberString.length()));
@@ -101,7 +106,7 @@ TEST_F(pkixocsp_CreateEncodedOCSPRequest, ChildCertLongSerialNumberTest)
   size_t ocspRequestLength;
   ASSERT_EQ(Result::ERROR_BAD_DER,
             CreateEncodedOCSPRequest(trustDomain,
-                                     CertID(issuer, spki, serialNumber),
+                                     CertID(issuer, publicKey, serialNumber),
                                      ocspRequest, ocspRequestLength));
 }
 
@@ -132,6 +137,10 @@ TEST_F(pkixocsp_CreateEncodedOCSPRequest, LongestSupportedSerialNumberTest)
   Input spki;
   ASSERT_EQ(Success, spki.Init(issuerSPKI.data(), issuerSPKI.length()));
 
+  PublicKey publicKey;
+  ASSERT_EQ(Success, publicKey.Init(EndEntityOrCA::MustBeCA, spki));
+  ASSERT_EQ(Success, publicKey.ParseAndCheck(trustDomain));
+
   Input serialNumber;
   ASSERT_EQ(Success, serialNumber.Init(serialNumberString.data(),
                                        serialNumberString.length()));
@@ -140,6 +149,6 @@ TEST_F(pkixocsp_CreateEncodedOCSPRequest, LongestSupportedSerialNumberTest)
   size_t ocspRequestLength;
   ASSERT_EQ(Success,
             CreateEncodedOCSPRequest(trustDomain,
-                                     CertID(issuer, spki, serialNumber),
+                                     CertID(issuer, publicKey, serialNumber),
                                      ocspRequest, ocspRequestLength));
 }

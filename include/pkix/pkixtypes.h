@@ -105,6 +105,9 @@ enum class TrustLevel
   InheritsTrust = 3       // certificate must chain to a trust anchor
 };
 
+class PublicKey;
+class TrustDomain;
+
 // CertID references the information needed to do revocation checking for the
 // certificate issued by the given issuer with the given serial number.
 //
@@ -112,24 +115,64 @@ enum class TrustLevel
 // revocation checking is being done, **NOT** the subject field of the issuer
 // certificate. (Those two fields must be equal to each other, but they may not
 // be encoded exactly the same, and the encoding matters for OCSP.)
-// issuerSubjectPublicKeyInfo is the entire DER-encoded subjectPublicKeyInfo
-// field from the issuer's certificate. serialNumber is the entire DER-encoded
-// serial number from the subject certificate (the certificate for which we are
-// checking the revocation status).
+// serialNumber is the entire DER-encoded serial number from the subject
+// certificate (the certificate for which we are checking the revocation
+// status).
 struct CertID final
 {
 public:
-  CertID(Input issuer, Input issuerSubjectPublicKeyInfo, Input serialNumber)
+  CertID(Input issuer, const PublicKey& issuerPublicKey, Input serialNumber)
     : issuer(issuer)
-    , issuerSubjectPublicKeyInfo(issuerSubjectPublicKeyInfo)
+    , issuerPublicKey(issuerPublicKey)
     , serialNumber(serialNumber)
   {
   }
-  const Input issuer;
-  const Input issuerSubjectPublicKeyInfo;
-  const Input serialNumber;
 
+  CertID(const CertID&) = delete;
   void operator=(const CertID&) = delete;
+
+  const Input issuer;
+  const PublicKey& issuerPublicKey;
+  const Input serialNumber;
+};
+
+namespace der {
+enum class PublicKeyAlgorithm;
+}
+
+class PublicKey final
+{
+public:
+  PublicKey() : type(Type::Unparsed) { }
+  Result Init(EndEntityOrCA endEntityOrCA, Input subjectPublicKeyInfo)
+  {
+    this->endEntityOrCA = endEntityOrCA;
+    return this->subjectPublicKeyInfo.Init(subjectPublicKeyInfo);
+  }
+  Result ParseAndCheck(TrustDomain&);
+
+  PublicKey(const PublicKey&) = delete;
+  void operator=(const PublicKey&) = delete;
+
+  Input GetSubjectPublicKeyInfo() const { return subjectPublicKeyInfo; }
+
+  Result VerifySignedDigest(TrustDomain& trustDomain,
+                            der::PublicKeyAlgorithm publicKeyAlg,
+                            const SignedDigest& signedDigest) const;
+
+private:
+  EndEntityOrCA endEntityOrCA;
+  Input subjectPublicKeyInfo;
+
+  enum class Type { Unparsed = 0, ECC = 1, RSA = 2 } type;
+
+  // For ECC
+  NamedCurve curve;
+  Input publicPoint;
+
+  // For RSA
+  Input modulus;
+  Input exponent;
 };
 
 class DERArray
@@ -293,12 +336,20 @@ public:
   // given RSA public key.
   //
   // CheckRSAPublicKeyModulusSizeInBits will be called before calling this
-  // function, so it is not necessary to repeat those checks here. However,
-  // VerifyRSAPKCS1SignedDigest *is* responsible for doing the mathematical
-  // verification of the public key validity as specified in NIST SP 800-56A.
+  // function, so it is not necessary to repeat those checks here. It is also
+  // guaranteed that a negative modulus or exponent will be rejected before
+  // this function is called. However, VerifyRSAPKCS1SignedDigest *is*
+  // responsible for doing the mathematical verification of the public key
+  // validity as specified in NIST SP 800-56A.
+  //
+  // The modulus and exponent parameters are DER-encoded ASN.1 Integer values
+  // without the tag and length. In particular, there may be a leading zero
+  // byte to disambiguate a positive value with its high bit set from a two's
+  // complement negative value.
   virtual Result VerifyRSAPKCS1SignedDigest(
                    const SignedDigest& signedDigest,
-                   Input subjectPublicKeyInfo) = 0;
+                   Input subjectPublicKeyInfo, Input modulus, Input exponent)
+                   = 0;
 
   // Check that the given named ECC curve is acceptable for ECDSA signatures.
   //
@@ -315,8 +366,26 @@ public:
   // so it is not necessary to repeat that check here. However,
   // VerifyECDSASignedDigest *is* responsible for doing the mathematical
   // verification of the public key validity as specified in NIST SP 800-56A.
+  //
+  // The DER-encoded signature is in signedDigest.signature. The r and s
+  // parameters are the DER-encoded ASN.1 Integer components of
+  // signedDigest.signature without the tag and length. If the high bit of the
+  // first byte is set then the value is a two's complement negative value.
+  // Otherwise, the value is non-negative, in which case there may be a leading
+  // zero byte to disambiguate a positive value with its high bit set from a
+  // negative value.
+  //
+  // subjectPublicKeyInfo is the DER-encoded SubjectPublicKeyInfo for the
+  // public key to use for the verification. The curve parameter identifies
+  // the curve encoded in subjectPublicKeyInfo. The publicPoint parameter
+  // is the public point on the curve encoded within subjectPublicKeyInfo.
+  // Section 2.3.4 of http://www.secg.org/SEC1-Ver-1.0.pdf describes how to
+  // decode it.
   virtual Result VerifyECDSASignedDigest(const SignedDigest& signedDigest,
-                                         Input subjectPublicKeyInfo) = 0;
+                                         Input r, Input s,
+                                         Input subjectPublicKeyInfo,
+                                         NamedCurve curve, Input publicPoint)
+                                         = 0;
 
   // Check that the validity duration is acceptable.
   //

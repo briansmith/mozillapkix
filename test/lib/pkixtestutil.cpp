@@ -1044,7 +1044,7 @@ CertID(OCSPResponseContext& context)
     // context.certID.issuerSubjectPublicKeyInfo is the entire
     // SubjectPublicKeyInfo structure, but we need just the subjectPublicKey
     // part.
-    Reader input(context.certID.issuerSubjectPublicKeyInfo);
+    Reader input(context.certID.issuerPublicKey.GetSubjectPublicKeyInfo());
     Reader contents;
     if (der::ExpectTagAndGetValue(input, der::SEQUENCE, contents) != Success) {
       return ByteString();

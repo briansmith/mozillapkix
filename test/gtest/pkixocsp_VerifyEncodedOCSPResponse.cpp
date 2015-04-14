@@ -90,7 +90,15 @@ public:
           != Success) {
       abort();
     }
-    endEntityCertID.reset(new (std::nothrow) CertID(rootNameDERInput, rootSPKIDER,
+    if (rootPublicKey.Init(EndEntityOrCA::MustBeCA, rootSPKIDER) != Success) {
+      abort();
+    }
+    if (rootPublicKey.ParseAndCheck(trustDomain) != Success) {
+      abort();
+    }
+
+    endEntityCertID.reset(new (std::nothrow) CertID(rootNameDERInput,
+                                                    rootPublicKey,
                                                     serialNumberDERInput));
     if (!endEntityCertID) {
       abort();
@@ -98,6 +106,8 @@ public:
   }
 
   static ScopedTestKeyPair rootKeyPair;
+  PublicKey rootPublicKey;
+
   static uint32_t rootIssuedCount;
   OCSPTestTrustDomain trustDomain;
 
@@ -140,8 +150,9 @@ class pkixocsp_VerifyEncodedResponse_WithoutResponseBytes
 protected:
   ByteString CreateEncodedOCSPErrorResponse(uint8_t status)
   {
+    PublicKey dummyKey;
     static const Input EMPTY;
-    OCSPResponseContext context(CertID(EMPTY, EMPTY, EMPTY),
+    OCSPResponseContext context(CertID(EMPTY, dummyKey, EMPTY),
                                 oneDayBeforeNow);
     context.responseStatus = status;
     context.skipResponseBytes = true;

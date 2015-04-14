@@ -99,8 +99,13 @@ BackCert::Init()
   if (rv != Success) {
     return rv;
   }
+  Input subjectPublicKeyInfo;
   rv = der::ExpectTagAndGetTLV(tbsCertificate, der::SEQUENCE,
                                subjectPublicKeyInfo);
+  if (rv != Success) {
+    return rv;
+  }
+  rv = publicKey.Init(endEntityOrCA, subjectPublicKeyInfo);
   if (rv != Success) {
     return rv;
   }

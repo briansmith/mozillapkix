@@ -52,6 +52,11 @@ public:
 
   Result Init();
 
+  Result ParseAndCheckPublicKey(TrustDomain& trustDomain)
+  {
+    return publicKey.ParseAndCheck(trustDomain);
+  }
+
   const Input GetDER() const { return der; }
   const der::SignedDataWithSignature& GetSignedData() const {
     return signedData;
@@ -66,10 +71,7 @@ public:
   // RFC 5280 names for everything.
   const Input GetValidity() const { return validity; }
   const Input GetSubject() const { return subject; }
-  const Input GetSubjectPublicKeyInfo() const
-  {
-    return subjectPublicKeyInfo;
-  }
+  const PublicKey& GetPublicKey() const { return publicKey; }
   const Input* GetAuthorityInfoAccess() const
   {
     return MaybeInput(authorityInfoAccess);
@@ -133,7 +135,7 @@ private:
   // RFC 5280 names for everything.
   Input validity;
   Input subject;
-  Input subjectPublicKeyInfo;
+  PublicKey publicKey;
 
   Input authorityInfoAccess;
   Input basicConstraints;
@@ -202,9 +204,6 @@ DaysBeforeYear(unsigned int year)
        + ((year - 1u) / 400u); // except years divisible by 400.
 }
 
-Result CheckSubjectPublicKeyInfo(Reader& input, TrustDomain& trustDomain,
-                                 EndEntityOrCA endEntityOrCA);
-
 static const size_t MAX_DIGEST_SIZE_IN_BYTES = 512 / 8; // sha-512
 
 Result DigestSignedData(TrustDomain& trustDomain,
@@ -213,15 +212,10 @@ Result DigestSignedData(TrustDomain& trustDomain,
                         /*out*/ der::PublicKeyAlgorithm& publicKeyAlg,
                         /*out*/ SignedDigest& signedDigest);
 
-Result VerifySignedDigest(TrustDomain& trustDomain,
-                          der::PublicKeyAlgorithm publicKeyAlg,
-                          const SignedDigest& signedDigest,
-                          Input signerSubjectPublicKeyInfo);
-
-// Combines DigestSignedData and VerifySignedDigest
+// Combines DigestSignedData and PublicKey::VerifySignedDigest
 Result VerifySignedData(TrustDomain& trustDomain,
                         const der::SignedDataWithSignature& signedData,
-                        Input signerSubjectPublicKeyInfo);
+                        const PublicKey& publicKey);
 
 // In a switch over an enum, sometimes some compilers are not satisfied that
 // all control flow paths have been considered unless there is a default case.

@@ -92,7 +92,7 @@ static Result
 CheckOCSPResponseSignerCert(TrustDomain& trustDomain,
                             BackCert& potentialSigner,
                             Input issuerSubject,
-                            Input issuerSubjectPublicKeyInfo,
+                            const PublicKey& issuerPublicKey,
                             Time time)
 {
   Result rv;
@@ -142,7 +142,7 @@ CheckOCSPResponseSignerCert(TrustDomain& trustDomain,
   // TODO(bug 926260): check name constraints
 
   rv = VerifySignedData(trustDomain, potentialSigner.GetSignedData(),
-                        issuerSubjectPublicKeyInfo);
+                        issuerPublicKey);
 
   // TODO: check for revocation of the OCSP responder certificate unless no-check
   // or the caller forcing no-check. To properly support the no-check policy, we'd
@@ -215,9 +215,9 @@ MatchResponderID(TrustDomain& trustDomain,
 static Result
 VerifyOCSPSignedData(TrustDomain& trustDomain,
                      const der::SignedDataWithSignature& signedResponseData,
-                     Input spki)
+                     const PublicKey& publicKey)
 {
-  Result rv = VerifySignedData(trustDomain, signedResponseData, spki);
+  Result rv = VerifySignedData(trustDomain, signedResponseData, publicKey);
   if (rv == Result::ERROR_BAD_SIGNATURE) {
     rv = Result::ERROR_OCSP_BAD_SIGNATURE;
   }
@@ -236,16 +236,17 @@ VerifySignature(Context& context, ResponderIDType responderIDType,
                 const der::SignedDataWithSignature& signedResponseData)
 {
   bool match;
-  Result rv = MatchResponderID(context.trustDomain, responderIDType,
-                               responderID, context.certID.issuer,
-                               context.certID.issuerSubjectPublicKeyInfo,
-                               match);
+  Result rv = MatchResponderID(
+                context.trustDomain, responderIDType, responderID,
+                context.certID.issuer,
+                context.certID.issuerPublicKey.GetSubjectPublicKeyInfo(),
+                match);
   if (rv != Success) {
     return rv;
   }
   if (match) {
     return VerifyOCSPSignedData(context.trustDomain, signedResponseData,
-                                context.certID.issuerSubjectPublicKeyInfo);
+                                context.certID.issuerPublicKey);
   }
 
   size_t numCerts = certs.GetLength();
@@ -256,7 +257,8 @@ VerifySignature(Context& context, ResponderIDType responderIDType,
       return rv;
     }
     rv = MatchResponderID(context.trustDomain, responderIDType, responderID,
-                          cert.GetSubject(), cert.GetSubjectPublicKeyInfo(),
+                          cert.GetSubject(),
+                          cert.GetPublicKey().GetSubjectPublicKeyInfo(),
                           match);
     if (rv != Success) {
       if (IsFatalError(rv)) {
@@ -268,7 +270,7 @@ VerifySignature(Context& context, ResponderIDType responderIDType,
     if (match) {
       rv = CheckOCSPResponseSignerCert(context.trustDomain, cert,
                                        context.certID.issuer,
-                                       context.certID.issuerSubjectPublicKeyInfo,
+                                       context.certID.issuerPublicKey,
                                        context.time);
       if (rv != Success) {
         if (IsFatalError(rv)) {
@@ -278,7 +280,7 @@ VerifySignature(Context& context, ResponderIDType responderIDType,
       }
 
       return VerifyOCSPSignedData(context.trustDomain, signedResponseData,
-                                  cert.GetSubjectPublicKeyInfo());
+                                  cert.GetPublicKey());
     }
   }
 
@@ -745,7 +747,8 @@ CertID(Reader& input, const Context& context, /*out*/ bool& match)
   }
 
   return MatchKeyHash(context.trustDomain, issuerKeyHash,
-                      context.certID.issuerSubjectPublicKeyInfo, match);
+                      context.certID.issuerPublicKey.GetSubjectPublicKeyInfo(),
+                      match);
 }
 
 // From http://tools.ietf.org/html/rfc6960#section-4.1.1:
@@ -930,7 +933,8 @@ CreateEncodedOCSPRequest(TrustDomain& trustDomain, const struct CertID& certID,
   // reqCert.issuerKeyHash (OCTET STRING)
   *d++ = 0x04;
   *d++ = hashLen;
-  rv = KeyHash(trustDomain, certID.issuerSubjectPublicKeyInfo, d, hashLen);
+  rv = KeyHash(trustDomain, certID.issuerPublicKey.GetSubjectPublicKeyInfo(),
+               d, hashLen);
   if (rv != Success) {
     return rv;
   }

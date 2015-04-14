@@ -279,8 +279,9 @@ GenerateDSSKeyPair()
 }
 
 Result
-TestVerifyECDSASignedDigest(const SignedDigest& signedDigest,
-                            Input subjectPublicKeyInfo)
+TestVerifyECDSASignedDigest(const SignedDigest& signedDigest, Input /*r*/,
+                            Input /*s*/, Input subjectPublicKeyInfo,
+                            NamedCurve /*curve*/, Input /*publicPoint*/)
 {
   InitNSSIfNeeded();
   return VerifyECDSASignedDigestNSS(signedDigest, subjectPublicKeyInfo,
@@ -289,7 +290,8 @@ TestVerifyECDSASignedDigest(const SignedDigest& signedDigest,
 
 Result
 TestVerifyRSAPKCS1SignedDigest(const SignedDigest& signedDigest,
-                               Input subjectPublicKeyInfo)
+                               Input subjectPublicKeyInfo, Input /*modulus*/,
+                               Input /*exponent*/)
 {
   InitNSSIfNeeded();
   return VerifyRSAPKCS1SignedDigestNSS(signedDigest, subjectPublicKeyInfo,

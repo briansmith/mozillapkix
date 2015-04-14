@@ -33,7 +33,7 @@ class BackCert;
 
 Result CheckIssuerIndependentProperties(
           TrustDomain& trustDomain,
-          const BackCert& cert,
+          BackCert& cert,
           Time time,
           KeyUsage requiredKeyUsageIfPresent,
           KeyPurposeId requiredEKUIfPresent,

@@ -643,7 +643,7 @@ CheckExtendedKeyUsage(EndEntityOrCA endEntityOrCA,
 
 Result
 CheckIssuerIndependentProperties(TrustDomain& trustDomain,
-                                 const BackCert& cert,
+                                 BackCert& cert,
                                  Time time,
                                  KeyUsage requiredKeyUsageIfPresent,
                                  KeyPurposeId requiredEKUIfPresent,
@@ -697,14 +697,7 @@ CheckIssuerIndependentProperties(TrustDomain& trustDomain,
   // Check the SPKI early, because it is one of the most selective properties
   // of the certificate due to SHA-1 deprecation and the deprecation of
   // certificates with keys weaker than RSA 2048.
-  Reader spki(cert.GetSubjectPublicKeyInfo());
-  rv = der::Nested(spki, der::SEQUENCE, [&](Reader& r) {
-    return CheckSubjectPublicKeyInfo(r, trustDomain, endEntityOrCA);
-  });
-  if (rv != Success) {
-    return rv;
-  }
-  rv = der::End(spki);
+  rv = cert.ParseAndCheckPublicKey(trustDomain);
   if (rv != Success) {
     return rv;
   }
