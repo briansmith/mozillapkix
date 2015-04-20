@@ -146,7 +146,7 @@ TEST_P(pkixkey_SyntacticallyValidRSAKey, Test)
                       TLV(der::BIT_STRING, NO_UNUSED_BITS + spk)));
 
   Input spkiInput;
-  ASSERT_EQ(Success, spkiInput.Init(spki.data(), spki.length()));
+  ASSERT_EQ(Input::OK, spkiInput.Init(spki.data(), spki.length()));
 
   PublicKey key;
   ASSERT_EQ(Success, key.Init(EndEntityOrCA::MustBeEndEntity, spkiInput));
@@ -208,7 +208,7 @@ TEST_P(pkixkey_SyntacticallyInvalidRSAKey, Test)
   const ByteString& spki(GetParam());
 
   Input spkiInput;
-  ASSERT_EQ(Success, spkiInput.Init(spki.data(), spki.length()));
+  ASSERT_EQ(Input::OK, spkiInput.Init(spki.data(), spki.length()));
 
   PublicKey key;
   ASSERT_EQ(Success, key.Init(EndEntityOrCA::MustBeEndEntity, spkiInput));

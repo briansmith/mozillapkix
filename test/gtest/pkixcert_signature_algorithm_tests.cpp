@@ -83,9 +83,8 @@ private:
       return Success;
     }
     Input issuerCert;
-    Result rv = issuerCert.Init(issuerDER->data(), issuerDER->length());
-    if (rv != Success) {
-      return rv;
+    if (issuerCert.Init(issuerDER->data(), issuerDER->length()) != Input::OK) {
+      return Result::FATAL_ERROR_INVALID_STATE;
     }
     bool keepGoing;
     return checker.Check(issuerCert, nullptr, keepGoing);
@@ -229,8 +228,8 @@ TEST_P(pkixcert_IsValidChainForAlgorithm, IsValidChainForAlgorithm)
   EXPECT_FALSE(ENCODING_FAILED(endEntitySubjectDER));
 
   Input endEntity;
-  ASSERT_EQ(Success, endEntity.Init(endEntityEncoded.data(),
-                                    endEntityEncoded.length()));
+  ASSERT_EQ(Input::OK, endEntity.Init(endEntityEncoded.data(),
+                                      endEntityEncoded.length()));
   Result expectedResult = chainValidity.isValid
                         ? Success
                         : Result::ERROR_CERT_SIGNATURE_ALGORITHM_DISABLED;

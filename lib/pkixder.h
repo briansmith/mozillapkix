@@ -42,6 +42,10 @@
 
 namespace mozilla { namespace pkix { namespace der {
 
+inline Result MapBadDER(Input::Result result) {
+  return result == Input::OK ? Success : Result::ERROR_BAD_DER;
+}
+
 enum Class : uint8_t
 {
    UNIVERSAL = 0 << 6,
@@ -102,7 +106,7 @@ ExpectTagAndGetValue(Reader& input, uint8_t tag, /*out*/ Reader& value)
   if (rv != Success) {
     return rv;
   }
-  return value.Init(valueInput);
+  return MapBadDER(value.Init(valueInput));
 }
 
 inline Result
@@ -133,7 +137,7 @@ ExpectTagAndGetTLV(Reader& input, uint8_t tag, /*out*/ Input& tlv)
   if (rv != Success) {
     return rv;
   }
-  return input.GetInput(mark, tlv);
+  return MapBadDER(input.GetInput(mark, tlv));
 }
 
 inline Result
@@ -290,15 +294,9 @@ Boolean(Reader& input, /*out*/ bool& value)
   if (rv != Success) {
     return rv;
   }
-
   uint8_t intValue;
-  rv = valueReader.Read(intValue);
-  if (rv != Success) {
-    return rv;
-  }
-  rv = End(valueReader);
-  if (rv != Success) {
-    return rv;
+  if (valueReader.Read(intValue) != Input::OK || !valueReader.AtEnd()) {
+    return Result::ERROR_BAD_DER;
   }
   switch (intValue) {
     case 0: value = false; return Success;

@@ -32,11 +32,8 @@ namespace mozilla { namespace pkix { namespace der {
 Result
 ReadTagAndGetValue(Reader& input, /*out*/ uint8_t& tag, /*out*/ Input& value)
 {
-  Result rv;
-
-  rv = input.Read(tag);
-  if (rv != Success) {
-    return rv;
+  if (input.Read(tag) != Input::OK) {
+    return Result::ERROR_BAD_DER;
   }
   if ((tag & 0x1F) == 0x1F) {
     return Result::ERROR_BAD_DER; // high tag number form not allowed
@@ -49,29 +46,20 @@ ReadTagAndGetValue(Reader& input, /*out*/ uint8_t& tag, /*out*/ Input& value)
   // set, followed by N bytes, where N is encoded in the lowest 7 bits of
   // the first byte.
   uint8_t length1;
-  rv = input.Read(length1);
-  if (rv != Success) {
-    return rv;
+  if (input.Read(length1) != Input::OK) {
+    return Result::ERROR_BAD_DER;
   }
   if (!(length1 & 0x80)) {
     length = length1;
   } else if (length1 == 0x81) {
     uint8_t length2;
-    rv = input.Read(length2);
-    if (rv != Success) {
-      return rv;
-    }
-    if (length2 < 128) {
+    if (input.Read(length2) != Input::OK || length2 < 128) {
       // Not shortest possible encoding
       return Result::ERROR_BAD_DER;
     }
     length = length2;
   } else if (length1 == 0x82) {
-    rv = input.Read(length);
-    if (rv != Success) {
-      return rv;
-    }
-    if (length < 256) {
+    if (input.Read(length) != Input::OK || length < 256) {
       // Not shortest possible encoding
       return Result::ERROR_BAD_DER;
     }
@@ -80,7 +68,7 @@ ReadTagAndGetValue(Reader& input, /*out*/ uint8_t& tag, /*out*/ Input& value)
     return Result::ERROR_BAD_DER;
   }
 
-  return input.Skip(length, value);
+  return MapBadDER(input.Skip(length, value));
 }
 
 static Result
@@ -269,9 +257,8 @@ SignedData(Reader& input, /*out*/ Reader& tbs,
     return rv;
   }
 
-  rv = input.GetInput(mark, signedData.data);
-  if (rv != Success) {
-    return rv;
+  if (input.GetInput(mark, signedData.data) != Input::OK) {
+    return Result::ERROR_BAD_DER;
   }
 
   rv = ExpectTagAndGetValue(input, der::SEQUENCE, signedData.algorithm);
@@ -296,54 +283,45 @@ BitStringWithNoUnusedBits(Reader& input, /*out*/ Input& value)
   }
 
   uint8_t unusedBitsAtEnd;
-  if (valueWithUnusedBits.Read(unusedBitsAtEnd) != Success) {
-    return Result::ERROR_BAD_DER;
-  }
   // XXX: Really the constraint should be that unusedBitsAtEnd must be less
   // than 7. But, we suspect there are no real-world values in OCSP responses
   // or certificates with non-zero unused bits. It seems like NSS assumes this
   // in various places, so we enforce it too in order to simplify this code. If
   // we find compatibility issues, we'll know we're wrong and we'll have to
   // figure out how to shift the bits around.
-  if (unusedBitsAtEnd != 0) {
+  if (valueWithUnusedBits.Read(unusedBitsAtEnd) != Input::OK ||
+      unusedBitsAtEnd != 0 ||
+      valueWithUnusedBits.SkipToEnd(value) != Input::OK) {
     return Result::ERROR_BAD_DER;
   }
-  return valueWithUnusedBits.SkipToEnd(value);
-}
-
-static inline Result
-ReadDigit(Reader& input, /*out*/ unsigned int& value)
-{
-  uint8_t b;
-  if (input.Read(b) != Success) {
-    return Result::ERROR_INVALID_DER_TIME;
-  }
-  if (b < '0' || b > '9') {
-    return Result::ERROR_INVALID_DER_TIME;
-  }
-  value = static_cast<unsigned int>(b - static_cast<uint8_t>('0'));
   return Success;
 }
 
-static inline Result
+static inline Input::Result
+ReadDigit(Reader& input, /*out*/ unsigned int& value)
+{
+  uint8_t b;
+  if (input.Read(b) != Input::OK || b < '0' || b > '9') {
+    return Input::BAD;
+  }
+  value = static_cast<unsigned int>(b - static_cast<uint8_t>('0'));
+  return Input::OK;
+}
+
+static inline Input::Result
 ReadTwoDigits(Reader& input, unsigned int minValue, unsigned int maxValue,
               /*out*/ unsigned int& value)
 {
   unsigned int hi;
-  Result rv = ReadDigit(input, hi);
-  if (rv != Success) {
-    return rv;
-  }
   unsigned int lo;
-  rv = ReadDigit(input, lo);
-  if (rv != Success) {
-    return rv;
+  if (ReadDigit(input, hi) != Input::OK || ReadDigit(input, lo) != Input::OK) {
+    return Input::BAD;
   }
   value = (hi * 10) + lo;
   if (value < minValue || value > maxValue) {
-    return Result::ERROR_INVALID_DER_TIME;
+    return Input::BAD;
   }
-  return Success;
+  return Input::OK;
 }
 
 namespace internal {
@@ -367,24 +345,24 @@ TimeChoice(Reader& tagged, uint8_t expectedTag, /*out*/ Time& time)
   unsigned int yearHi;
   unsigned int yearLo;
   if (expectedTag == GENERALIZED_TIME) {
-    rv = ReadTwoDigits(input, 0, 99, yearHi);
-    if (rv != Success) {
-      return rv;
-    }
-    rv = ReadTwoDigits(input, 0, 99, yearLo);
-    if (rv != Success) {
-      return rv;
+    if (ReadTwoDigits(input, 0, 99, yearHi) != Input::OK ||
+        ReadTwoDigits(input, 0, 99, yearLo) != Input::OK) {
+      return Result::ERROR_INVALID_DER_TIME;
     }
   } else if (expectedTag == UTCTime) {
-    rv = ReadTwoDigits(input, 0, 99, yearLo);
-    if (rv != Success) {
-      return rv;
+    if (ReadTwoDigits(input, 0, 99, yearLo) != Input::OK) {
+      return Result::ERROR_INVALID_DER_TIME;
     }
     yearHi = yearLo >= 50u ? 19u : 20u;
   } else {
     return NotReached("invalid tag given to TimeChoice",
                       Result::ERROR_INVALID_DER_TIME);
   }
+  unsigned int month;
+  if (ReadTwoDigits(input, 1u, 12u, month) != Input::OK) {
+    return Result::ERROR_INVALID_DER_TIME;
+  }
+
   unsigned int year = (yearHi * 100u) + yearLo;
   if (year < 1970u) {
     // We don't support dates before January 1, 1970 because that is the epoch.
@@ -392,11 +370,6 @@ TimeChoice(Reader& tagged, uint8_t expectedTag, /*out*/ Time& time)
   }
   days = DaysBeforeYear(year);
 
-  unsigned int month;
-  rv = ReadTwoDigits(input, 1u, 12u, month);
-  if (rv != Success) {
-    return rv;
-  }
   unsigned int daysInMonth;
   static const unsigned int jan = 31u;
   const unsigned int feb = ((year % 4u == 0u) &&
@@ -443,39 +416,20 @@ TimeChoice(Reader& tagged, uint8_t expectedTag, /*out*/ Time& time)
   }
 
   unsigned int dayOfMonth;
-  rv = ReadTwoDigits(input, 1u, daysInMonth, dayOfMonth);
-  if (rv != Success) {
-    return rv;
-  }
-  days += dayOfMonth - 1;
-
   unsigned int hours;
-  rv = ReadTwoDigits(input, 0u, 23u, hours);
-  if (rv != Success) {
-    return rv;
-  }
   unsigned int minutes;
-  rv = ReadTwoDigits(input, 0u, 59u, minutes);
-  if (rv != Success) {
-    return rv;
-  }
   unsigned int seconds;
-  rv = ReadTwoDigits(input, 0u, 59u, seconds);
-  if (rv != Success) {
-    return rv;
-  }
-
   uint8_t b;
-  if (input.Read(b) != Success) {
-    return Result::ERROR_INVALID_DER_TIME;
-  }
-  if (b != 'Z') {
-    return Result::ERROR_INVALID_DER_TIME;
-  }
-  if (End(input) != Success) {
+  if (ReadTwoDigits(input, 1u, daysInMonth, dayOfMonth) != Input::OK ||
+      ReadTwoDigits(input, 0u, 23u, hours) != Input::OK ||
+      ReadTwoDigits(input, 0u, 59u, minutes) != Input::OK ||
+      ReadTwoDigits(input, 0u, 59u, seconds) != Input::OK ||
+      input.Read(b) != Input::OK || b != 'Z' ||
+      !input.AtEnd()) {
     return Result::ERROR_INVALID_DER_TIME;
   }
 
+  days += dayOfMonth - 1;
   uint64_t totalSeconds = (static_cast<uint64_t>(days) * 24u * 60u * 60u) +
                           (static_cast<uint64_t>(hours)      * 60u * 60u) +
                           (static_cast<uint64_t>(minutes)          * 60u) +
@@ -500,9 +454,8 @@ IntegralBytes(Reader& input, uint8_t tag,
   // There must be at least one byte in the value. (Zero is encoded with a
   // single 0x00 value byte.)
   uint8_t firstByte;
-  rv = reader.Read(firstByte);
-  if (rv != Success) {
-    return rv;
+  if (reader.Read(firstByte) != Input::OK) {
+    return Result::ERROR_BAD_DER;
   }
 
   // If there is a byte after an initial 0x00/0xFF, then the initial byte
@@ -511,7 +464,7 @@ IntegralBytes(Reader& input, uint8_t tag,
 
   if (prefixed) {
     uint8_t nextByte;
-    if (reader.Read(nextByte) != Success) {
+    if (reader.Read(nextByte) != Input::OK) {
       return NotReached("Read of one byte failed but not at end.",
                         Result::FATAL_ERROR_LIBRARY_FAILURE);
     }
@@ -566,8 +519,7 @@ IntegralValue(Reader& input, uint8_t tag, /*out*/ uint8_t& value)
     return rv;
   }
   Reader valueReader(valueBytes);
-  rv = valueReader.Read(value);
-  if (rv != Success) {
+  if (valueReader.Read(value) != Input::OK) {
     return NotReached("IntegralBytes already validated the value.", rv);
   }
   rv = End(valueReader);

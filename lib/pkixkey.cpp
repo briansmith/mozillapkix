@@ -26,6 +26,13 @@
 
 namespace mozilla { namespace pkix {
 
+Result
+PublicKey::Init(EndEntityOrCA endEntityOrCA, Input subjectPublicKeyInfo)
+{
+  this->endEntityOrCA = endEntityOrCA;
+  return der::MapBadDER(this->subjectPublicKeyInfo.Init(subjectPublicKeyInfo));
+}
+
 // RFC 5280 Section 4.1.2.7 Subject Public Key Info
 Result
 PublicKey::ParseAndCheck(TrustDomain& trustDomain)
@@ -139,9 +146,8 @@ PublicKey::ParseAndCheck(TrustDomain& trustDomain)
     // RFC 5480 Section 2.2 says that the first octet will be 0x04 to indicate
     // an uncompressed point, which is the only encoding we support.
     uint8_t compressedOrUncompressed;
-    rv = subjectPublicKeyReader.Read(compressedOrUncompressed);
-    if (rv != Success) {
-      return rv;
+    if (subjectPublicKeyReader.Read(compressedOrUncompressed) != Input::OK) {
+      return Result::ERROR_BAD_DER;
     }
     if (compressedOrUncompressed != 0x04) {
       return Result::ERROR_UNSUPPORTED_EC_POINT_FORM;
@@ -150,11 +156,8 @@ PublicKey::ParseAndCheck(TrustDomain& trustDomain)
     // The point is encoded as two raw (not DER-encoded) integers, each padded
     // to the bit length (rounded up to the nearest byte).
     Input point;
-    rv = subjectPublicKeyReader.SkipToEnd(point);
-    if (rv != Success) {
-      return rv;
-    }
-    if (point.GetLength() != ((bits + 7) / 8u) * 2u) {
+    if (subjectPublicKeyReader.SkipToEnd(point) != Input::OK ||
+        (point.GetLength() != ((bits + 7) / 8u) * 2u)) {
       return Result::ERROR_BAD_DER;
     }
 
@@ -243,12 +246,11 @@ DigestSignedData(TrustDomain& trustDomain,
   if (rv != Success) {
     return rv;
   }
-  rv = signedDigest.digest.Init(digestBuf, digestLen);
-  if (rv != Success) {
-    return rv;
+  if (signedDigest.digest.Init(digestBuf, digestLen) != Input::OK ||
+      signedDigest.signature.Init(signedData.signature) != Input::OK) {
+    return NotReached("Impossible state", Result::FATAL_ERROR_INVALID_STATE);
   }
-
-  return signedDigest.signature.Init(signedData.signature);
+  return Success;
 }
 
 Result

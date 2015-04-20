@@ -945,9 +945,8 @@ CreateEncodedOCSPRequest(TrustDomain& trustDomain, const struct CertID& certID,
   *d++ = static_cast<uint8_t>(certID.serialNumber.GetLength());
   Reader serialNumber(certID.serialNumber);
   do {
-    rv = serialNumber.Read(*d);
-    if (rv != Success) {
-      return rv;
+    if (serialNumber.Read(*d) != Input::OK) {
+      return Result::ERROR_BAD_DER;
     }
     ++d;
   } while (!serialNumber.AtEnd());

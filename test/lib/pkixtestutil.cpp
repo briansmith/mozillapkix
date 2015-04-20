@@ -75,7 +75,7 @@ bool
 InputEqualsByteString(Input input, const ByteString& bs)
 {
   Input bsInput;
-  if (bsInput.Init(bs.data(), bs.length()) != Success) {
+  if (bsInput.Init(bs.data(), bs.length()) != Input::OK) {
     // Init can only fail if it is given a bad pointer or if the input is too
     // long, which won't ever happen. Plus, if it does, it is ok to call abort
     // since this is only test code.
@@ -91,7 +91,7 @@ InputToByteString(Input input)
   Reader reader(input);
   for (;;) {
     uint8_t b;
-    if (reader.Read(b) != Success) {
+    if (reader.Read(b) != Input::OK) {
       return result;
     }
     result.push_back(b);
@@ -177,7 +177,7 @@ SHA1(const ByteString& toHash)
 {
   uint8_t digestBuf[20];
   Input input;
-  if (input.Init(toHash.data(), toHash.length()) != Success) {
+  if (input.Init(toHash.data(), toHash.length()) != Input::OK) {
     abort();
   }
   Result rv = TestDigestBuf(input, DigestAlgorithm::sha1, digestBuf,

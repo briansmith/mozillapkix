@@ -176,9 +176,8 @@ public:
     if (numItems >= MAX_LENGTH) {
       return Result::FATAL_ERROR_INVALID_ARGS;
     }
-    Result rv = items[numItems].Init(der); // structure assignment
-    if (rv != Success) {
-      return rv;
+    if (items[numItems].Init(der) != Input::OK) {
+      return Result::ERROR_BAD_DER;
     }
     ++numItems;
     return Success;

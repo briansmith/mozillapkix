@@ -289,7 +289,7 @@ BackCert::RememberExtension(Reader& extnID, Input extnValue,
     if (extnValue.GetLength() == 0 && !emptyValueAllowed) {
       return Result::ERROR_EXTENSION_VALUE_INVALID;
     }
-    if (out->Init(extnValue) != Success) {
+    if (out->Init(extnValue) != Input::OK) {
       // Duplicate extension
       return Result::ERROR_EXTENSION_VALUE_INVALID;
     }

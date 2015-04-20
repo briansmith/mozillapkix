@@ -88,10 +88,10 @@ TEST_F(pkixocsp_CreateEncodedOCSPRequest, ChildCertLongSerialNumberTest)
                                                      issuerSPKI));
 
   Input issuer;
-  ASSERT_EQ(Success, issuer.Init(issuerDER.data(), issuerDER.length()));
+  ASSERT_EQ(Input::OK, issuer.Init(issuerDER.data(), issuerDER.length()));
 
   Input spki;
-  ASSERT_EQ(Success, spki.Init(issuerSPKI.data(), issuerSPKI.length()));
+  ASSERT_EQ(Input::OK, spki.Init(issuerSPKI.data(), issuerSPKI.length()));
 
   PublicKey publicKey;
   ASSERT_EQ(Success, publicKey.Init(EndEntityOrCA::MustBeCA, spki));
@@ -99,8 +99,8 @@ TEST_F(pkixocsp_CreateEncodedOCSPRequest, ChildCertLongSerialNumberTest)
   ASSERT_EQ(Success, publicKey.ParseAndCheck(mockCERTIDTrustDomain));
 
   Input serialNumber;
-  ASSERT_EQ(Success, serialNumber.Init(serialNumberString.data(),
-                                       serialNumberString.length()));
+  ASSERT_EQ(Input::OK, serialNumber.Init(serialNumberString.data(),
+                                         serialNumberString.length()));
 
   uint8_t ocspRequest[OCSP_REQUEST_MAX_LENGTH];
   size_t ocspRequestLength;
@@ -132,18 +132,18 @@ TEST_F(pkixocsp_CreateEncodedOCSPRequest, LongestSupportedSerialNumberTest)
                                                      issuerSPKI));
 
   Input issuer;
-  ASSERT_EQ(Success, issuer.Init(issuerDER.data(), issuerDER.length()));
+  ASSERT_EQ(Input::OK, issuer.Init(issuerDER.data(), issuerDER.length()));
 
   Input spki;
-  ASSERT_EQ(Success, spki.Init(issuerSPKI.data(), issuerSPKI.length()));
+  ASSERT_EQ(Input::OK, spki.Init(issuerSPKI.data(), issuerSPKI.length()));
 
   PublicKey publicKey;
   ASSERT_EQ(Success, publicKey.Init(EndEntityOrCA::MustBeCA, spki));
   ASSERT_EQ(Success, publicKey.ParseAndCheck(trustDomain));
 
   Input serialNumber;
-  ASSERT_EQ(Success, serialNumber.Init(serialNumberString.data(),
-                                       serialNumberString.length()));
+  ASSERT_EQ(Input::OK, serialNumber.Init(serialNumberString.data(),
+                                         serialNumberString.length()));
 
   uint8_t ocspRequest[OCSP_REQUEST_MAX_LENGTH];
   size_t ocspRequestLength;

@@ -1098,7 +1098,7 @@ MatchPresentedDNSIDWithReferenceDNSID(
         if (reference.Peek('.')) {
           if (presented.Skip(static_cast<Input::size_type>(
                                presentedDNSID.GetLength() -
-                                 referenceDNSID.GetLength())) != Success) {
+                                 referenceDNSID.GetLength())) != Input::OK) {
             return NotReached("skipping subdomain failed",
                               Result::FATAL_ERROR_LIBRARY_FAILURE);
           }
@@ -1106,12 +1106,13 @@ MatchPresentedDNSIDWithReferenceDNSID(
                    AllowDotlessSubdomainMatches::Yes) {
           if (presented.Skip(static_cast<Input::size_type>(
                                presentedDNSID.GetLength() -
-                                 referenceDNSID.GetLength() - 1)) != Success) {
+                                 referenceDNSID.GetLength() - 1))
+                != Input::OK) {
             return NotReached("skipping subdomains failed",
                               Result::FATAL_ERROR_LIBRARY_FAILURE);
           }
           uint8_t b;
-          if (presented.Read(b) != Success) {
+          if (presented.Read(b) != Input::OK) {
             return NotReached("reading from presentedDNSID failed",
                               Result::FATAL_ERROR_LIBRARY_FAILURE);
           }
@@ -1131,7 +1132,7 @@ MatchPresentedDNSIDWithReferenceDNSID(
 
   // We only allow wildcard labels that consist only of '*'.
   if (presented.Peek('*')) {
-    if (presented.Skip(1) != Success) {
+    if (presented.Skip(1) != Input::OK) {
       return NotReached("Skipping '*' failed",
                         Result::FATAL_ERROR_LIBRARY_FAILURE);
     }
@@ -1142,7 +1143,7 @@ MatchPresentedDNSIDWithReferenceDNSID(
         return Success;
       }
       uint8_t referenceByte;
-      if (reference.Read(referenceByte) != Success) {
+      if (reference.Read(referenceByte) != Input::OK) {
         return NotReached("invalid reference ID",
                           Result::FATAL_ERROR_INVALID_ARGS);
       }
@@ -1151,17 +1152,11 @@ MatchPresentedDNSIDWithReferenceDNSID(
 
   for (;;) {
     uint8_t presentedByte;
-    if (presented.Read(presentedByte) != Success) {
-      matches = false;
-      return Success;
-    }
     uint8_t referenceByte;
-    if (reference.Read(referenceByte) != Success) {
-      matches = false;
-      return Success;
-    }
-    if (LocaleInsensitveToLower(presentedByte) !=
-        LocaleInsensitveToLower(referenceByte)) {
+    if (presented.Read(presentedByte) != Input::OK ||
+        reference.Read(referenceByte) != Input::OK ||
+        (LocaleInsensitveToLower(presentedByte) !=
+         LocaleInsensitveToLower(referenceByte))) {
       matches = false;
       return Success;
     }
@@ -1179,7 +1174,7 @@ MatchPresentedDNSIDWithReferenceDNSID(
   if (!reference.AtEnd()) {
     if (referenceDNSIDRole != IDRole::NameConstraint) {
       uint8_t referenceByte;
-      if (reference.Read(referenceByte) != Success) {
+      if (reference.Read(referenceByte) != Input::OK) {
         return NotReached("read failed but not at end",
                           Result::FATAL_ERROR_LIBRARY_FAILURE);
       }
@@ -1228,37 +1223,24 @@ MatchPresentedIPAddressWithConstraint(Input presentedID,
 
   Reader constraint(iPAddressConstraint);
   Reader constraintAddress;
-  Result rv = constraint.Skip(iPAddressConstraint.GetLength() / 2u,
-                              constraintAddress);
-  if (rv != Success) {
-    return rv;
-  }
   Reader constraintMask;
-  rv = constraint.Skip(iPAddressConstraint.GetLength() / 2u, constraintMask);
-  if (rv != Success) {
-    return rv;
-  }
-  rv = der::End(constraint);
-  if (rv != Success) {
-    return rv;
+  if (constraint.Skip(iPAddressConstraint.GetLength() / 2u,
+                      constraintAddress) != Input::OK ||
+      constraint.Skip(iPAddressConstraint.GetLength() / 2u,
+                      constraintMask) != Input::OK ||
+      !constraint.AtEnd()) {
+    return Result::ERROR_BAD_DER;
   }
 
   Reader presented(presentedID);
   do {
     uint8_t presentedByte;
-    rv = presented.Read(presentedByte);
-    if (rv != Success) {
-      return rv;
-    }
     uint8_t constraintAddressByte;
-    rv = constraintAddress.Read(constraintAddressByte);
-    if (rv != Success) {
-      return rv;
-    }
     uint8_t constraintMaskByte;
-    rv = constraintMask.Read(constraintMaskByte);
-    if (rv != Success) {
-      return rv;
+    if (presented.Read(presentedByte) != Input::OK ||
+        constraintAddress.Read(constraintAddressByte) != Input::OK ||
+        constraintMask.Read(constraintMaskByte) != Input::OK) {
+      return Result::ERROR_BAD_DER;
     }
     foundMatch =
       ((presentedByte ^ constraintAddressByte) & constraintMaskByte) == 0;
@@ -1457,7 +1439,7 @@ IsValidRFC822Name(Input input)
   bool startOfAtom = true;
   for (;;) {
     uint8_t presentedByte;
-    if (reader.Read(presentedByte) != Success) {
+    if (reader.Read(presentedByte) != Input::OK) {
       return false;
     }
     switch (presentedByte) {
@@ -1491,7 +1473,7 @@ IsValidRFC822Name(Input input)
           return false;
         }
         Input domain;
-        if (reader.SkipToEnd(domain) != Success) {
+        if (reader.SkipToEnd(domain) != Input::OK) {
           return false;
         }
         return IsValidDNSID(domain, IDRole::PresentedID, AllowWildcards::No);
@@ -1534,7 +1516,7 @@ MatchPresentedRFC822NameWithReferenceRFC822Name(Input presentedRFC822Name,
       // Skip past the '@' in the presented ID.
       for (;;) {
         uint8_t presentedByte;
-        if (presented.Read(presentedByte) != Success) {
+        if (presented.Read(presentedByte) != Input::OK) {
           return Result::FATAL_ERROR_LIBRARY_FAILURE;
         }
         if (presentedByte == '@') {
@@ -1543,7 +1525,7 @@ MatchPresentedRFC822NameWithReferenceRFC822Name(Input presentedRFC822Name,
       }
 
       Input presentedDNSID;
-      if (presented.SkipToEnd(presentedDNSID) != Success) {
+      if (presented.SkipToEnd(presentedDNSID) != Input::OK) {
         return Result::FATAL_ERROR_LIBRARY_FAILURE;
       }
 
@@ -1562,17 +1544,14 @@ MatchPresentedRFC822NameWithReferenceRFC822Name(Input presentedRFC822Name,
 
   for (;;) {
     uint8_t presentedByte;
-    if (presented.Read(presentedByte) != Success) {
+    if (presented.Read(presentedByte) != Input::OK) {
       matches = reference.AtEnd();
       return Success;
     }
     uint8_t referenceByte;
-    if (reference.Read(referenceByte) != Success) {
-      matches = false;
-      return Success;
-    }
-    if (LocaleInsensitveToLower(presentedByte) !=
-        LocaleInsensitveToLower(referenceByte)) {
+    if (reference.Read(referenceByte) != Input::OK ||
+        LocaleInsensitveToLower(presentedByte) !=
+          LocaleInsensitveToLower(referenceByte)) {
       matches = false;
       return Success;
     }
@@ -1599,10 +1578,7 @@ StartsWithIDNALabel(Input id)
   Reader input(id);
   for (size_t i = 0; i < sizeof(IDN_ALABEL_PREFIX); ++i) {
     uint8_t b;
-    if (input.Read(b) != Success) {
-      return false;
-    }
-    if (b != IDN_ALABEL_PREFIX[i]) {
+    if (input.Read(b) != Input::OK || b != IDN_ALABEL_PREFIX[i]) {
       return false;
     }
   }
@@ -1622,7 +1598,7 @@ ReadIPv4AddressComponent(Reader& input, bool lastComponent,
     }
 
     uint8_t b;
-    if (input.Read(b) != Success) {
+    if (input.Read(b) != Input::OK) {
       return false;
     }
 
@@ -1723,14 +1699,8 @@ ParseIPv6Address(Input hostname, /*out*/ uint8_t (&out)[16])
     // A valid input can only start with ':' if there is a contraction at the
     // beginning.
     uint8_t b;
-    if (input.Read(b) != Success || b != ':') {
-      assert(false);
-      return false;
-    }
-    if (input.Read(b) != Success) {
-      return false;
-    }
-    if (b != ':') {
+    if (input.Read(b) != Input::OK || b != ':' ||
+        input.Read(b) != Input::OK || b != ':') {
       return false;
     }
     contractionIndex = 0;
@@ -1745,7 +1715,7 @@ ParseIPv6Address(Input hostname, /*out*/ uint8_t (&out)[16])
     while (!input.AtEnd() && !input.Peek(':')) {
       uint8_t value;
       uint8_t b;
-      if (input.Read(b) != Success) {
+      if (input.Read(b) != Input::OK) {
         assert(false);
         return false;
       }
@@ -1772,14 +1742,12 @@ ParseIPv6Address(Input hostname, /*out*/ uint8_t (&out)[16])
             return false; // Too many components before the IPv4 component
           }
 
+          uint8_t(*ipv4)[4] =
+            reinterpret_cast<uint8_t(*)[4]>(&out[2 * currentComponentIndex]);
           input.SkipToEnd();
           Input ipv4Component;
-          if (input.GetInput(startOfComponent, ipv4Component) != Success) {
-            return false;
-          }
-          uint8_t (*ipv4)[4] =
-            reinterpret_cast<uint8_t(*)[4]>(&out[2 * currentComponentIndex]);
-          if (!ParseIPv4Address(ipv4Component, *ipv4)) {
+          if (input.GetInput(startOfComponent, ipv4Component) != Input::OK ||
+              !ParseIPv4Address(ipv4Component, *ipv4)) {
             return false;
           }
           assert(input.AtEnd());
@@ -1828,7 +1796,7 @@ ParseIPv6Address(Input hostname, /*out*/ uint8_t (&out)[16])
     }
 
     uint8_t b;
-    if (input.Read(b) != Success || b != ':') {
+    if (input.Read(b) != Input::OK || b != ':') {
       assert(false);
       return false;
     }
@@ -1838,7 +1806,7 @@ ParseIPv6Address(Input hostname, /*out*/ uint8_t (&out)[16])
       if (contractionIndex != -1) {
         return false; // multiple contractions are not allowed.
       }
-      if (input.Read(b) != Success || b != ':') {
+      if (input.Read(b) != Input::OK || b != ':') {
         assert(false);
         return false;
       }
@@ -1894,18 +1862,12 @@ IsValidDNSID(Input hostname, IDRole idRole, AllowWildcards allowWildcards)
   bool isWildcard = allowWildcards == AllowWildcards::Yes && input.Peek('*');
   bool isFirstByte = !isWildcard;
   if (isWildcard) {
-    Result rv = input.Skip(1);
-    if (rv != Success) {
+    if (input.Skip(1) != Input::OK) {
       assert(false);
       return false;
     }
-
     uint8_t b;
-    rv = input.Read(b);
-    if (rv != Success) {
-      return false;
-    }
-    if (b != '.') {
+    if (input.Read(b) != Input::OK || b != '.') {
       return false;
     }
     ++dotCount;
@@ -1915,7 +1877,7 @@ IsValidDNSID(Input hostname, IDRole idRole, AllowWildcards allowWildcards)
     static const size_t MAX_LABEL_LENGTH = 63;
 
     uint8_t b;
-    if (input.Read(b) != Success) {
+    if (input.Read(b) != Input::OK) {
       return false;
     }
     switch (b) {

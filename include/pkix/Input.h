@@ -25,9 +25,9 @@
 #ifndef mozilla_pkix_Input_h
 #define mozilla_pkix_Input_h
 
+#include <cassert>
 #include <cstring>
 
-#include "pkix/Result.h"
 #include "stdint.h"
 
 namespace mozilla { namespace pkix {
@@ -53,6 +53,34 @@ class Input final
 {
 public:
   typedef uint16_t size_type;
+
+  // Since InputResult only has two values, we can combine calls to multile
+  // functions without losing information. Also, Input exports BAD and OK using
+  // a shorter name, which is preferred.
+  //
+  // Good:
+  //
+  //   if (foo(...) != Input::OK ||
+  //       bar(...) != Input::OK ||
+  //       baz(...) != Input::OK) {
+  //     return Input::BAD;
+  //   }
+  //
+  // Bad:
+  //
+  //   if (foo(...) != Input::Result::OK) {
+  //     return Input::Result::BAD;
+  //   }
+  //   if (bar(...) != Input::Result::OK) {
+  //     return Input::Result::BAD;
+  //   }
+  //   if (baz(...) != Input::Result::OK) {
+  //     return Input::Result::BAD;
+  //   }
+  //
+  enum class Result { BAD, OK };
+  static const Result OK = Result::OK;
+  static const Result BAD = Result::BAD;
 
   // This constructor is useful for inputs that are statically known to be of a
   // fixed size, e.g.:
@@ -88,17 +116,17 @@ public:
   {
     if (this->data) {
       // already initialized
-      return Result::FATAL_ERROR_INVALID_ARGS;
+      return BAD;
     }
     if (!data || len > 0xffffu) {
       // input too large
-      return Result::ERROR_BAD_DER;
+      return BAD;
     }
 
     this->data = data;
     this->len = len;
 
-    return Success;
+    return OK;
   }
 
   // Initialize the input to be equivalent to the given input. Init may not be
@@ -159,14 +187,15 @@ public:
   {
   }
 
-  Result Init(Input input)
+  Input::Result Init(Input input)
   {
+    assert(!this->input);
     if (this->input) {
-      return Result::FATAL_ERROR_INVALID_ARGS;
+      return Input::BAD;
     }
     this->input = input.UnsafeGetData();
     this->end = input.UnsafeGetData() + input.GetLength();
-    return Success;
+    return Input::OK;
   }
 
   bool Peek(uint8_t expectedByte) const
@@ -174,26 +203,24 @@ public:
     return input < end && *input == expectedByte;
   }
 
-  Result Read(uint8_t& out)
+  Input::Result Read(uint8_t& out)
   {
-    Result rv = EnsureLength(1);
-    if (rv != Success) {
-      return rv;
+    if (EnsureLength(1) != Input::OK) {
+      return Input::BAD;
     }
     out = *input++;
-    return Success;
+    return Input::OK;
   }
 
-  Result Read(uint16_t& out)
+  Input::Result Read(uint16_t& out)
   {
-    Result rv = EnsureLength(2);
-    if (rv != Success) {
-      return rv;
+    if (EnsureLength(2) != Input::OK) {
+      return Input::BAD;
     }
     out = *input++;
     out <<= 8u;
     out |= *input++;
-    return Success;
+    return Input::OK;
   }
 
   template <Input::size_type N>
@@ -228,42 +255,33 @@ public:
     return true;
   }
 
-  Result Skip(Input::size_type len)
+  Input::Result Skip(Input::size_type len)
   {
-    Result rv = EnsureLength(len);
-    if (rv != Success) {
-      return rv;
+    if (EnsureLength(len) != Input::OK) {
+      return Input::BAD;
     }
     input += len;
-    return Success;
+    return Input::OK;
   }
 
-  Result Skip(Input::size_type len, Reader& skipped)
+  Input::Result Skip(Input::size_type len, Reader& skipped)
   {
-    Result rv = EnsureLength(len);
-    if (rv != Success) {
-      return rv;
-    }
-    rv = skipped.Init(input, len);
-    if (rv != Success) {
-      return rv;
+    if (EnsureLength(len) != Input::OK ||
+       skipped.Init(input, len) != Input::OK) {
+      return Input::BAD;
     }
     input += len;
-    return Success;
+    return Input::OK;
   }
 
-  Result Skip(Input::size_type len, /*out*/ Input& skipped)
+  Input::Result Skip(Input::size_type len, /*out*/ Input& skipped)
   {
-    Result rv = EnsureLength(len);
-    if (rv != Success) {
-      return rv;
-    }
-    rv = skipped.Init(input, len);
-    if (rv != Success) {
-      return rv;
+    if (EnsureLength(len) != Input::OK ||
+        skipped.Init(input, len) != Input::OK) {
+      return Input::BAD;
     }
     input += len;
-    return Success;
+    return Input::OK;
   }
 
   void SkipToEnd()
@@ -271,17 +289,17 @@ public:
     input = end;
   }
 
-  Result SkipToEnd(/*out*/ Input& skipped)
+  Input::Result SkipToEnd(/*out*/ Input& skipped)
   {
     return Skip(static_cast<Input::size_type>(end - input), skipped);
   }
 
-  Result EnsureLength(Input::size_type len)
+  Input::Result EnsureLength(Input::size_type len)
   {
     if (static_cast<size_t>(end - input) < len) {
-      return Result::ERROR_BAD_DER;
+      return Input::BAD;
     }
-    return Success;
+    return Input::OK;
   }
 
   bool AtEnd() const { return input == end; }
@@ -300,25 +318,28 @@ public:
 
   Mark GetMark() const { return Mark(*this, input); }
 
-  Result GetInput(const Mark& mark, /*out*/ Input& item)
+  Input::Result GetInput(const Mark& mark, /*out*/ Input& item)
   {
+    assert(&mark.input == this);
+    assert(mark.mark <= input);
     if (&mark.input != this || mark.mark > input) {
-      return NotReached("invalid mark", Result::FATAL_ERROR_INVALID_ARGS);
+      return Input::BAD;
     }
     return item.Init(mark.mark,
                      static_cast<Input::size_type>(input - mark.mark));
   }
 
 private:
-  Result Init(const uint8_t* data, Input::size_type len)
+  Input::Result Init(const uint8_t* data, Input::size_type len)
   {
+    assert(!input);
     if (input) {
       // already initialized
-      return Result::FATAL_ERROR_INVALID_ARGS;
+      return Input::BAD;
     }
     input = data;
     end = data + len;
-    return Success;
+    return Input::OK;
   }
 
   const uint8_t* input;
@@ -334,7 +355,7 @@ InputContains(const Input& input, uint8_t toFind)
   Reader reader(input);
   for (;;) {
     uint8_t b;
-    if (reader.Read(b) != Success) {
+    if (reader.Read(b) != Input::OK) {
       return false;
     }
     if (b == toFind) {

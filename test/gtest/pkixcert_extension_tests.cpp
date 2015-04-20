@@ -233,7 +233,7 @@ TEST_P(pkixcert_extension, ExtensionHandledProperly)
   ByteString cert(CreateCertWithOneExtension(cn, testcase.extension));
   ASSERT_FALSE(ENCODING_FAILED(cert));
   Input certInput;
-  ASSERT_EQ(Success, certInput.Init(cert.data(), cert.length()));
+  ASSERT_EQ(Input::OK, certInput.Init(cert.data(), cert.length()));
   ASSERT_EQ(testcase.expectedResult,
             BuildCertChain(trustDomain, certInput, Now(),
                            EndEntityOrCA::MustBeEndEntity,
@@ -265,7 +265,7 @@ TEST_F(pkixcert_extension, DuplicateSubjectAltName)
   ByteString cert(CreateCertWithExtensions(certCN, extensions));
   ASSERT_FALSE(ENCODING_FAILED(cert));
   Input certInput;
-  ASSERT_EQ(Success, certInput.Init(cert.data(), cert.length()));
+  ASSERT_EQ(Input::OK, certInput.Init(cert.data(), cert.length()));
   ASSERT_EQ(Result::ERROR_EXTENSION_VALUE_INVALID,
             BuildCertChain(trustDomain, certInput, Now(),
                            EndEntityOrCA::MustBeEndEntity,

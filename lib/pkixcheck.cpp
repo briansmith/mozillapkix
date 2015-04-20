@@ -200,17 +200,12 @@ CheckKeyUsage(EndEntityOrCA endEntityOrCA, const Input* encodedKeyUsage,
     return Result::ERROR_INADEQUATE_KEY_USAGE;
   }
 
+  // We reject empty bit masks.
   uint8_t numberOfPaddingBits;
-  if (value.Read(numberOfPaddingBits) != Success) {
-    return Result::ERROR_INADEQUATE_KEY_USAGE;
-  }
-  if (numberOfPaddingBits > 7) {
-    return Result::ERROR_INADEQUATE_KEY_USAGE;
-  }
-
   uint8_t bits;
-  if (value.Read(bits) != Success) {
-    // Reject empty bit masks.
+  if (value.Read(numberOfPaddingBits) != Input::OK ||
+      numberOfPaddingBits > 7 ||
+      value.Read(bits) != Input::OK) {
     return Result::ERROR_INADEQUATE_KEY_USAGE;
   }
 
@@ -271,7 +266,7 @@ CheckKeyUsage(EndEntityOrCA endEntityOrCA, const Input* encodedKeyUsage,
 
   // The padding applies to the last byte, so skip to the last byte.
   while (!value.AtEnd()) {
-    if (value.Read(bits) != Success) {
+    if (value.Read(bits) != Input::OK) {
       return Result::ERROR_INADEQUATE_KEY_USAGE;
     }
   }
@@ -345,7 +340,7 @@ CheckCertificatePolicies(EndEntityOrCA endEntityOrCA,
 
   Input requiredPolicyDER;
   if (requiredPolicyDER.Init(requiredPolicy.bytes, requiredPolicy.numBytes)
-        != Success) {
+        != Input::OK) {
     return Result::FATAL_ERROR_INVALID_ARGS;
   }
 

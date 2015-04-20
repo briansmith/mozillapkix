@@ -144,15 +144,11 @@ class PublicKey final
 {
 public:
   PublicKey() : type(Type::Unparsed) { }
-  Result Init(EndEntityOrCA endEntityOrCA, Input subjectPublicKeyInfo)
-  {
-    this->endEntityOrCA = endEntityOrCA;
-    return this->subjectPublicKeyInfo.Init(subjectPublicKeyInfo);
-  }
-  Result ParseAndCheck(TrustDomain&);
-
   PublicKey(const PublicKey&) = delete;
   void operator=(const PublicKey&) = delete;
+
+  Result Init(EndEntityOrCA endEntityOrCA, Input subjectPublicKeyInfo);
+  Result ParseAndCheck(TrustDomain&);
 
   Input GetSubjectPublicKeyInfo() const { return subjectPublicKeyInfo; }
 

@@ -911,11 +911,11 @@ TEST_P(pkixnames_MatchPresentedDNSIDWithReferenceDNSID,
   SCOPED_TRACE(param.presentedDNSID.c_str());
   SCOPED_TRACE(param.referenceDNSID.c_str());
   Input presented;
-  ASSERT_EQ(Success, presented.Init(param.presentedDNSID.data(),
-                                    param.presentedDNSID.length()));
+  ASSERT_EQ(Input::OK, presented.Init(param.presentedDNSID.data(),
+                                      param.presentedDNSID.length()));
   Input reference;
-  ASSERT_EQ(Success, reference.Init(param.referenceDNSID.data(),
-                                    param.referenceDNSID.length()));
+  ASSERT_EQ(Input::OK, reference.Init(param.referenceDNSID.data(),
+                                      param.referenceDNSID.length()));
 
   // sanity check that test makes sense
   ASSERT_TRUE(IsValidReferenceDNSID(reference));
@@ -947,8 +947,8 @@ TEST_P(pkixnames_Turkish_I_Comparison, MatchPresentedDNSIDWithReferenceDNSID)
   const InputValidity& inputValidity(GetParam());
   SCOPED_TRACE(inputValidity.input.c_str());
   Input input;
-  ASSERT_EQ(Success, input.Init(inputValidity.input.data(),
-                                inputValidity.input.length()));
+  ASSERT_EQ(Input::OK, input.Init(inputValidity.input.data(),
+                                  inputValidity.input.length()));
 
   bool isASCII = InputsAreEqual(LOWERCASE_I, input) ||
                  InputsAreEqual(UPPERCASE_I, input);
@@ -989,8 +989,8 @@ TEST_P(pkixnames_IsValidReferenceDNSID, IsValidReferenceDNSID)
   const InputValidity& inputValidity(GetParam());
   SCOPED_TRACE(inputValidity.input.c_str());
   Input input;
-  ASSERT_EQ(Success, input.Init(inputValidity.input.data(),
-                                inputValidity.input.length()));
+  ASSERT_EQ(Input::OK, input.Init(inputValidity.input.data(),
+                                  inputValidity.input.length()));
   ASSERT_EQ(inputValidity.isValidReferenceID, IsValidReferenceDNSID(input));
   ASSERT_EQ(inputValidity.isValidPresentedID, IsValidPresentedDNSID(input));
 }
@@ -1013,8 +1013,8 @@ TEST_P(pkixnames_ParseIPv4Address, ParseIPv4Address)
   const IPAddressParams<4>& param(GetParam());
   SCOPED_TRACE(param.input.c_str());
   Input input;
-  ASSERT_EQ(Success, input.Init(param.input.data(),
-                                param.input.length()));
+  ASSERT_EQ(Input::OK, input.Init(param.input.data(),
+                                  param.input.length()));
   uint8_t ipAddress[4];
   ASSERT_EQ(param.isValid, ParseIPv4Address(input, ipAddress));
   if (param.isValid) {
@@ -1039,8 +1039,8 @@ TEST_P(pkixnames_ParseIPv6Address, ParseIPv6Address)
   const IPAddressParams<16>& param(GetParam());
   SCOPED_TRACE(param.input.c_str());
   Input input;
-  ASSERT_EQ(Success, input.Init(param.input.data(),
-                                param.input.length()));
+  ASSERT_EQ(Input::OK, input.Init(param.input.data(),
+                                  param.input.length()));
   uint8_t ipAddress[16];
   ASSERT_EQ(param.isValid, ParseIPv6Address(input, ipAddress));
   if (param.isValid) {
@@ -1560,11 +1560,11 @@ TEST_P(pkixnames_CheckCertHostname, CheckCertHostname)
   ByteString cert(CreateCert(param.subject, param.subjectAltName));
   ASSERT_FALSE(ENCODING_FAILED(cert));
   Input certInput;
-  ASSERT_EQ(Success, certInput.Init(cert.data(), cert.length()));
+  ASSERT_EQ(Input::OK, certInput.Init(cert.data(), cert.length()));
 
   Input hostnameInput;
-  ASSERT_EQ(Success, hostnameInput.Init(param.hostname.data(),
-                                        param.hostname.length()));
+  ASSERT_EQ(Input::OK, hostnameInput.Init(param.hostname.data(),
+                                          param.hostname.length()));
 
   ASSERT_EQ(param.result, CheckCertHostname(certInput, hostnameInput));
 }
@@ -1594,7 +1594,7 @@ TEST_F(pkixnames_CheckCertHostname, SANWithoutSequence)
                        *keyPair, sha256WithRSAEncryption()));
   ASSERT_FALSE(ENCODING_FAILED(certDER));
   Input certInput;
-  ASSERT_EQ(Success, certInput.Init(certDER.data(), certDER.length()));
+  ASSERT_EQ(Input::OK, certInput.Init(certDER.data(), certDER.length()));
 
   static const uint8_t a[] = { 'a' };
   ASSERT_EQ(Result::ERROR_EXTENSION_VALUE_INVALID,
@@ -1617,11 +1617,11 @@ TEST_P(pkixnames_CheckCertHostname_PresentedMatchesReference, CN_NoSAN)
   ByteString cert(CreateCert(RDN(CN(param.presentedDNSID)), NO_SAN));
   ASSERT_FALSE(ENCODING_FAILED(cert));
   Input certInput;
-  ASSERT_EQ(Success, certInput.Init(cert.data(), cert.length()));
+  ASSERT_EQ(Input::OK, certInput.Init(cert.data(), cert.length()));
 
   Input hostnameInput;
-  ASSERT_EQ(Success, hostnameInput.Init(param.referenceDNSID.data(),
-                                        param.referenceDNSID.length()));
+  ASSERT_EQ(Input::OK, hostnameInput.Init(param.referenceDNSID.data(),
+                                          param.referenceDNSID.length()));
 
   ASSERT_EQ(param.expectedMatches ? Success : Result::ERROR_BAD_CERT_DOMAIN,
             CheckCertHostname(certInput, hostnameInput));
@@ -1639,11 +1639,11 @@ TEST_P(pkixnames_CheckCertHostname_PresentedMatchesReference,
                              DNSName(param.presentedDNSID)));
   ASSERT_FALSE(ENCODING_FAILED(cert));
   Input certInput;
-  ASSERT_EQ(Success, certInput.Init(cert.data(), cert.length()));
+  ASSERT_EQ(Input::OK, certInput.Init(cert.data(), cert.length()));
 
   Input hostnameInput;
-  ASSERT_EQ(Success, hostnameInput.Init(param.referenceDNSID.data(),
-                                        param.referenceDNSID.length()));
+  ASSERT_EQ(Input::OK, hostnameInput.Init(param.referenceDNSID.data(),
+                                          param.referenceDNSID.length()));
   Result expectedResult
     = param.expectedResult != Success ? param.expectedResult
     : param.expectedMatches ? Success
@@ -1665,12 +1665,12 @@ TEST_P(pkixnames_Turkish_I_Comparison, CheckCertHostname_CN_NoSAN)
   SCOPED_TRACE(param.input.c_str());
 
   Input input;
-  ASSERT_EQ(Success, input.Init(param.input.data(), param.input.length()));
+  ASSERT_EQ(Input::OK, input.Init(param.input.data(), param.input.length()));
 
   ByteString cert(CreateCert(RDN(CN(param.input)), NO_SAN));
   ASSERT_FALSE(ENCODING_FAILED(cert));
   Input certInput;
-  ASSERT_EQ(Success, certInput.Init(cert.data(), cert.length()));
+  ASSERT_EQ(Input::OK, certInput.Init(cert.data(), cert.length()));
 
   Result expectedResult = (InputsAreEqual(LOWERCASE_I, input) ||
                            InputsAreEqual(UPPERCASE_I, input))
@@ -1691,12 +1691,12 @@ TEST_P(pkixnames_Turkish_I_Comparison, CheckCertHostname_SAN)
   SCOPED_TRACE(param.input.c_str());
 
   Input input;
-  ASSERT_EQ(Success, input.Init(param.input.data(), param.input.length()));
+  ASSERT_EQ(Input::OK, input.Init(param.input.data(), param.input.length()));
 
   ByteString cert(CreateCert(RDN(CN("Common Name")), DNSName(param.input)));
   ASSERT_FALSE(ENCODING_FAILED(cert));
   Input certInput;
-  ASSERT_EQ(Success, certInput.Init(cert.data(), cert.length()));
+  ASSERT_EQ(Input::OK, certInput.Init(cert.data(), cert.length()));
 
   Result expectedResult
     = (!param.isValidPresentedID) ? Result::ERROR_BAD_DER
@@ -1726,11 +1726,11 @@ TEST_P(pkixnames_CheckCertHostname_IPV4_Addresses,
                              IPAddress(param.expectedValueIfValid)));
   ASSERT_FALSE(ENCODING_FAILED(cert));
   Input certInput;
-  ASSERT_EQ(Success, certInput.Init(cert.data(), cert.length()));
+  ASSERT_EQ(Input::OK, certInput.Init(cert.data(), cert.length()));
 
   Input hostnameInput;
-  ASSERT_EQ(Success, hostnameInput.Init(param.input.data(),
-                                        param.input.length()));
+  ASSERT_EQ(Input::OK, hostnameInput.Init(param.input.data(),
+                                          param.input.length()));
 
   ASSERT_EQ(param.isValid ? Success : Result::ERROR_BAD_CERT_DOMAIN,
             CheckCertHostname(certInput, hostnameInput));
@@ -1749,11 +1749,11 @@ TEST_P(pkixnames_CheckCertHostname_IPV4_Addresses,
   ByteString cert(CreateCert(RDN(CN(param.input)), NO_SAN));
   ASSERT_FALSE(ENCODING_FAILED(cert));
   Input certInput;
-  ASSERT_EQ(Success, certInput.Init(cert.data(), cert.length()));
+  ASSERT_EQ(Input::OK, certInput.Init(cert.data(), cert.length()));
 
   Input hostnameInput;
-  ASSERT_EQ(Success, hostnameInput.Init(param.input.data(),
-                                        param.input.length()));
+  ASSERT_EQ(Input::OK, hostnameInput.Init(param.input.data(),
+                                          param.input.length()));
 
   // Some of the invalid IPv4 addresses are valid DNS names!
   Result expectedResult = (param.isValid || IsValidReferenceDNSID(hostnameInput))
@@ -2523,7 +2523,7 @@ TEST_P(pkixnames_CheckNameConstraints,
   ByteString certDER(CreateCert(param.subject, param.subjectAltName));
   ASSERT_FALSE(ENCODING_FAILED(certDER));
   Input certInput;
-  ASSERT_EQ(Success, certInput.Init(certDER.data(), certDER.length()));
+  ASSERT_EQ(Input::OK, certInput.Init(certDER.data(), certDER.length()));
   BackCert cert(certInput, EndEntityOrCA::MustBeEndEntity, nullptr);
   ASSERT_EQ(Success, cert.Init());
 
@@ -2531,7 +2531,7 @@ TEST_P(pkixnames_CheckNameConstraints,
     ByteString nameConstraintsDER(TLV(der::SEQUENCE,
                                       PermittedSubtrees(param.subtrees)));
     Input nameConstraints;
-    ASSERT_EQ(Success,
+    ASSERT_EQ(Input::OK,
               nameConstraints.Init(nameConstraintsDER.data(),
                                    nameConstraintsDER.length()));
     ASSERT_EQ(param.expectedPermittedSubtreesResult,
@@ -2542,7 +2542,7 @@ TEST_P(pkixnames_CheckNameConstraints,
     ByteString nameConstraintsDER(TLV(der::SEQUENCE,
                                       ExcludedSubtrees(param.subtrees)));
     Input nameConstraints;
-    ASSERT_EQ(Success,
+    ASSERT_EQ(Input::OK,
               nameConstraints.Init(nameConstraintsDER.data(),
                                    nameConstraintsDER.length()));
     ASSERT_EQ(param.expectedExcludedSubtreesResult,
@@ -2554,7 +2554,7 @@ TEST_P(pkixnames_CheckNameConstraints,
                                       PermittedSubtrees(param.subtrees) +
                                       ExcludedSubtrees(param.subtrees)));
     Input nameConstraints;
-    ASSERT_EQ(Success,
+    ASSERT_EQ(Input::OK,
               nameConstraints.Init(nameConstraintsDER.data(),
                                    nameConstraintsDER.length()));
     ASSERT_EQ((param.expectedPermittedSubtreesResult ==
