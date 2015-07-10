@@ -99,8 +99,8 @@ def substitute_path(old_path):
        used as the original file path when a file is new; it is used as the new
        file path when the file is removed.)
       
-       Otherwise, the path identifies a file that is not within libwebpki, in
-       which case this function returns None.
+       Otherwise, the path identifies a file that is not within mozilla::pkix,
+       in which case this function returns None.
     '''
     match = re.match('([ab])/security/(?:insanity|pkix)/(.+)$', old_path)
     if not match:
@@ -132,15 +132,16 @@ def filter_diffs(diff, hg_hash):
         new_b = substitute_path(old_b)
 
         if (not new_a) and (not new_b):
-            # The diff does not affect libwebpki at all so ignore it.
+            # The diff does not affect mozilla::pkix at all so ignore it.
             while i < len(diff) and not(diff[i].startswith('diff --git')):
                 i += 1
             continue
 
-        # Moves from a directory outside of libwebpki and moves to a directory
-        # outside of libwebpki are treated like file additions and file
-        # deletions, respectively. Additions and deletions use the same file
-        # name in the "diff --git" command for both the source and destination.
+        # Moves from a directory outside of mozilla::pkix and moves to a
+        # directory outside of mozilla::pkix are treated like file additions
+        # and file deletions, respectively. Additions and deletions use the
+        # same file name in the "diff --git" command for both the source and
+        # destination.
         diff_src = new_a if new_a else new_b
         diff_dest = new_b if new_b else new_a
             
@@ -160,7 +161,7 @@ def filter_diffs(diff, hg_hash):
                 if was_plus_plus_plus:
                     break
         elif not new_a:
-            # Synthesized file addition from a move from outside libwebpki.
+            # Synthesized file addition from a move from outside mozilla::pkix.
             print("hg cat -r " + hg_hash + " " + unprefixed_path(old_b), file=sys.stderr)
             file_contents = subprocess.Popen(
                     ["hg", "cat", "-r", hg_hash, unprefixed_path(old_b)],
@@ -180,7 +181,7 @@ def filter_diffs(diff, hg_hash):
             for line in result:
                 print(line, file=sys.stderr)
         else:
-            # Synthesized file removal from a move to outside libwebpki.
+            # Synthesized file removal from a move to outside mozilla::pkix.
             result.append('diff --git a/%s b/%s' % (unprefixed_path(new_a), unprefixed_path(new_a)))
             result.append("deleted file mode 100644")
             result.append("--- " + new_a)

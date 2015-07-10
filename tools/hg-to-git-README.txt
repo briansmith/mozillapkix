@@ -40,8 +40,8 @@ to security/pkix (and/or security/insanity, for old revisions):
 
 The -M argument filters out merge commits. Commit
 a555f10c40e553030345ced1bab3088533c5119b is skipped because its metadata
-indicates that it updated some files in libwebpki, but it actually didn't; see
-https://bugzilla.mozilla.org/show_bug.cgi?id=1037220#c13.
+indicates that it updated some files in mozilla::pkix, but it actually didn't;
+see https://bugzilla.mozilla.org/show_bug.cgi?id=1037220#c13.
 
 You need to omit any revisions that have already been imported.
 
