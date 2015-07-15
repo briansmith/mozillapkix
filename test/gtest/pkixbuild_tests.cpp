@@ -322,6 +322,8 @@ TEST_F(pkixbuild, NoRevocationCheckingForExpiredCert)
                            nullptr));
 }
 
+#if defined(MOZILLA_PKIX_TEST_HAVE_DSS)
+
 class DSSTrustDomain final : public EverythingFailsByDefaultTrustDomain
 {
 public:
@@ -369,6 +371,8 @@ TEST_F(pkixbuild_DSS, DSSEndEntityKeyNotAccepted)
                            CertPolicyId::anyPolicy,
                            nullptr/*stapledOCSPResponse*/));
 }
+
+#endif // defined(MOZILLA_PKIX_TEST_HAVE_DSS)
 
 class IssuerNameCheckTrustDomain final : public DefaultCryptoTrustDomain
 {

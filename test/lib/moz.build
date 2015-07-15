@@ -20,6 +20,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+DEFINES['MOZILLA_PKIX_TEST_HAVE_DSS'] = '1'
 DEFINES['MOZILLA_PKIX_TEST_HAVE_MD2'] = '1'
 
 SOURCES += [
