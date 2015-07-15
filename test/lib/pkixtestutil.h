@@ -108,7 +108,9 @@ struct TestSignatureAlgorithm
   bool accepted;
 };
 
+#if defined(MOZILLA_PKIX_TEST_HAVE_MD2)
 TestSignatureAlgorithm md2WithRSAEncryption();
+#endif
 TestSignatureAlgorithm md5WithRSAEncryption();
 TestSignatureAlgorithm sha1WithRSAEncryption();
 TestSignatureAlgorithm sha256WithRSAEncryption();

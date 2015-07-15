@@ -146,10 +146,12 @@ static const ChainValidity CHAIN_VALIDITY[] =
                 NO_INTERMEDIATE,
                 md5WithRSAEncryption(),
                 true),
+#if defined(MOZILLA_PKIX_TEST_HAVE_MD2)
   ChainValidity(sha256WithRSAEncryption(),
                 NO_INTERMEDIATE,
                 md2WithRSAEncryption(),
                 true),
+#endif
 
   // Certificates that are not trust anchors must not have a signature with an
   // unsupported signature algorithm.
@@ -157,6 +159,7 @@ static const ChainValidity CHAIN_VALIDITY[] =
                 NO_INTERMEDIATE,
                 sha256WithRSAEncryption(),
                 false),
+#if defined(MOZILLA_PKIX_TEST_HAVE_MD2)
   ChainValidity(md2WithRSAEncryption(),
                 NO_INTERMEDIATE,
                 sha256WithRSAEncryption(),
@@ -165,10 +168,12 @@ static const ChainValidity CHAIN_VALIDITY[] =
                 NO_INTERMEDIATE,
                 md5WithRSAEncryption(),
                 false),
+#endif
   ChainValidity(sha256WithRSAEncryption(),
                 md5WithRSAEncryption(),
                 sha256WithRSAEncryption(),
                 false),
+#if defined(MOZILLA_PKIX_TEST_HAVE_MD2)
   ChainValidity(sha256WithRSAEncryption(),
                 md2WithRSAEncryption(),
                 sha256WithRSAEncryption(),
@@ -177,6 +182,7 @@ static const ChainValidity CHAIN_VALIDITY[] =
                 md2WithRSAEncryption(),
                 md5WithRSAEncryption(),
                 false),
+#endif
 };
 
 class pkixcert_IsValidChainForAlgorithm
