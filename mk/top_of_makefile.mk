@@ -21,3 +21,30 @@ EXE_PREFIX ?= $(BUILD_PREFIX)bin/
 OBJ_PREFIX ?= $(BUILD_PREFIX)obj/
 
 CXXFLAGS += -std=c++11
+
+# Always add full debug info.
+CPPFLAGS += -g3
+
+# Allow cross-compiliing x86 on x64 and vice versa.
+ifeq ($(BITS),)
+$(error You must specify BITS=32 or BITS=64)
+endif
+
+CPPFLAGS += -m$(BITS)
+LDFLAGS += -m$(BITS)
+
+CMAKE_BUILD_TYPE ?= DEBUG
+
+# Although we don't use CMake, we use a variable CMAKE_BUILD_TYPE with similar
+# semantics to the CMake variable of that name.
+ifeq ($(CMAKE_BUILD_TYPE),MINSIZEREL)
+CPPFLAGS += -DNDEBUG -Os
+else ifeq ($(CMAKE_BUILD_TYPE),RELEASE)
+CPPFLAGS += -DNDEBUG -O3
+else ifeq ($(CMAKE_BUILD_TYPE),RELWITHDEBINFO)
+CPPFLAGS += -DNDEBUG -O3
+else ifeq ($(CMAKE_BUILD_TYPE),DEBUG)
+# Do nothing
+else
+$(error invalid value for CMAKE_BUILD_TYPE: $(CMAKE_BUILD_TYPE))
+endif

@@ -20,12 +20,38 @@ OPENSSL_LDLIBS ?= -L$(BUILD_PREFIX)lib -lcrypto -lssl -ldl
 
 OPENSSL_DIR_FLAGS ?= --openssldir=$(abspath $(BUILD_PREFIX))
 
-OPENSSL_CONFIG_FLAGS ?= $(OPENSSL_OPTION_FLAGS) $(OPENSSL_DIR_FLAGS)
+ifeq ($(OPENSSL_CONFIG_BASE),)
+ifeq ($(BITS),32)
+OPENSSL_CONFIG_BASE = linux-elf
+else ifeq ($(BITS),64)
+OPENSSL_CONFIG_BASE = linux-x86_64
+else
+$(error OPENSSL_CONFIG_BASE not defined and unsupported BITS: $(BITS))
+endif
+endif
+# Although we don't use CMake, we use a variable RELWITHDEBINFO with
+# similar semantics to the CMake variable of that name.
+ifeq ($(CMAKE_BUILD_TYPE),DEBUG)
+OPENSSL_CONFIG_BASE_PREFIX = debug-
+endif
+
+# TODO: OpenSSL's debug-linux-elf configuration tries to link with -lefence,
+#       which I haven't figured out how to install in Travis CI, so just use
+#       the normal (non-debug) configuration in that case, for now.
+ifeq ($(OPENSSL_CONFIG_BASE_PREFIX)$(OPENSSL_CONFIG_BASE),debug-linux-elf)
+OPENSSL_CONFIG_BASE_PREFIX =
+endif
+
+OPENSSL_CONFIG_FLAGS ?= $(OPENSSL_CONFIG_BASE_PREFIX)$(OPENSSL_CONFIG_BASE) \
+                        $(OPENSSL_OPTION_FLAGS) \
+                        $(OPENSSL_DIR_FLAGS) \
+                        -m$(BITS) \
+                        $(NULL)
 
 .PHONY: openssl-configure
 openssl-configure: BUILD_PREFIX_ABSOLUTE =
 openssl-configure:
-	(cd $(OPENSSL_PREFIX) && ./config $(OPENSSL_CONFIG_FLAGS))
+	(cd $(OPENSSL_PREFIX) && ./Configure $(OPENSSL_CONFIG_FLAGS))
 
 LIBCRYPTO_LIB = $(BUILD_PREFIX)lib/libcrypto.a
 LIBSSL_LIB = $(BUILD_PREFIX)lib/libssl.a
