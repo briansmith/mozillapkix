@@ -25,6 +25,70 @@ CXXFLAGS += -std=c++11
 # Always add full debug info.
 CPPFLAGS += -g3
 
+# Warnings
+
+# TODO:
+#   -Wconversion \
+#   -Weverything -Wpessimizing-move, etc. \
+#   -Wsuggest-attribute \
+#   -Wstack-usage=n \
+#   -Wformat-signedness \
+#   -fsanitize=undefined \
+#   -Wnormalized \
+#   -fsized-deallocation \
+#   -Wmisleading-indentation \
+#   -Wmissing-declarations \
+#   -Wshadow \
+#   -Wsized-deallocation \
+#   -Wsuggest-final-types \
+#   -Wsuggest-final-methods \
+#   -Wsuggest-override \
+#   -Wzero-as-null-pointer-constant \
+#   -Wunsafe-loop-optimizations \
+#   -Wsign-conversion\
+#   -Wstrict-overflow=5 \
+#   -Wundef \
+
+# TODO: clang-specific warnings
+
+# TODO (not in clang):
+#   -Wmaybe-uninitialized \
+#   -Wtrampolines \
+#   -Wlogical-op \
+
+# TODO (GCC 4.9+):
+#   -Wconditionally-supported
+#   -Wdate-time
+
+CPPFLAGS += \
+  -pedantic -pedantic-errors \
+  \
+  -fstack-protector \
+  \
+  -Wall -Werror \
+  -Wextra \
+  \
+  -Wcast-align \
+  -Wcast-qual \
+  -Wenum-compare \
+  -Wfloat-equal \
+  -Wformat=2 \
+  -Winvalid-pch \
+  -Wmissing-include-dirs \
+  -Wredundant-decls \
+  -Wuninitialized \
+  -Wwrite-strings \
+  $(NULL)
+
+CFLAGS += \
+  -Wbad-function-cast \
+  -Wjump-misses-init \
+  -Wnested-externs \
+  -Wold-style-declaration \
+  -Wold-style-definition \
+  -Wstrict-prototypes \
+  $(NULL)
+
 # Allow cross-compiliing x86 on x64 and vice versa.
 ifeq ($(BITS),)
 $(error You must specify BITS=32 or BITS=64)

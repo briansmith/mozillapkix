@@ -28,6 +28,11 @@ GTEST_MAIN_SRCS = \
 
 GTEST_MAIN_OBJS = $(addprefix $(OBJ_PREFIX), $(GTEST_MAIN_SRCS:.cc=.o))
 
-$(GTEST_OBJS) $(GTEST_MAIN_OBJS): CXXFLAGS += $(GTEST_CXXFLAGS) \
-                                              -I$(GTEST_PREFIX) \
-                                              $(NULL)
+$(GTEST_OBJS) $(GTEST_MAIN_OBJS): \
+  CXXFLAGS += $(GTEST_CXXFLAGS) \
+              -I$(GTEST_PREFIX) \
+              $(NULL)
+$(GTEST_OBJS) $(GTEST_MAIN_OBJS): \
+  CPPFLAGS += -Wno-missing-field-initializers \
+              -Wno-format-nonliteral \
+              $(NULL)
