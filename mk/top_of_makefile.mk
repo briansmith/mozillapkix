@@ -25,6 +25,12 @@ CXXFLAGS += -std=c++11
 # Always add full debug info.
 CPPFLAGS += -g3
 
+# Dead code elimination.
+CPPFLAGS += -fdata-sections -ffunction-sections
+LDFLAGS += -Wl,--gc-sections
+
+# TODO: link-time optimization.
+
 # Warnings
 
 # TODO:
