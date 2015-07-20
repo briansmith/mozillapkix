@@ -15,24 +15,25 @@
 PKIX_PREFIX ?= pkix/
 PKIX_CXXFLAGS = -I$(PKIX_PREFIX)include
 
-# Everything in lib except pkixnss.cpp.
+# Everything in lib except pkixnss.cpp and pkixlibcrypto.cpp.
 PKIX_SRCS = \
   $(PKIX_PREFIX)lib/pkixbuild.cpp \
   $(PKIX_PREFIX)lib/pkixcert.cpp \
   $(PKIX_PREFIX)lib/pkixcheck.cpp \
   $(PKIX_PREFIX)lib/pkixder.cpp \
+  $(PKIX_PREFIX)lib/pkixkey.cpp \
   $(PKIX_PREFIX)lib/pkixnames.cpp \
   $(PKIX_PREFIX)lib/pkixocsp.cpp \
   $(PKIX_PREFIX)lib/pkixresult.cpp \
   $(PKIX_PREFIX)lib/pkixtime.cpp \
-  $(PKIX_PREFIX)lib/pkixverify.cpp \
   $(NULL)
 
 PKIX_OBJS = $(addprefix $(OBJ_PREFIX), $(PKIX_SRCS:.cpp=.o))
 
 $(PKIX_OBJS): CXXFLAGS += $(PKIX_CXXFLAGS)
 
-# Everything in test/lib and test/gtest except pkixtestnss.cpp.
+# Everything in test/lib and test/gtest except pkixtestnss.cpp and
+# pkixtestlibcrypto.
 PKIX_GTEST_SRCS = \
   $(PKIX_PREFIX)test/gtest/pkixbuild_tests.cpp \
   $(PKIX_PREFIX)test/gtest/pkixcert_extension_tests.cpp \
@@ -59,3 +60,27 @@ $(PKIX_GTEST_OBJS): CXXFLAGS += $(GTEST_CXXFLAGS) \
                                 -I$(PKIX_PREFIX)lib \
                                 -I$(PKIX_PREFIX)test/lib \
                                 $(NULL)
+
+PKIX_LIBCRYPTO_SRCS = \
+  $(PKIX_PREFIX)lib/pkixlibcrypto.cpp \
+  $(NULL)
+
+PKIX_LIBCRYPTO_OBJS = $(addprefix $(OBJ_PREFIX), \
+                        $(PKIX_LIBCRYPTO_SRCS:.cpp=.o))
+
+$(PKIX_LIBCRYPTO_OBJS): CPPFLAGS += $(OPENSSL_CPPFLAGS)
+$(PKIX_LIBCRYPTO_OBJS): CXXFLAGS += $(PKIX_CXXFLAGS)
+
+PKIX_LIBCRYPTO_GTEST_SRCS = \
+  $(PKIX_PREFIX)test/lib/pkixtestlibcrypto.cpp \
+  $(NULL)
+
+PKIX_LIBCRYPTO_GTEST_OBJS = $(addprefix $(OBJ_PREFIX), \
+                              $(PKIX_LIBCRYPTO_GTEST_SRCS:.cpp=.o))
+
+$(PKIX_LIBCRYPTO_GTEST_OBJS): CPPFLAGS += $(OPENSSL_CPPFLAGS)
+$(PKIX_LIBCRYPTO_GTEST_OBJS): CXXFLAGS += $(GTEST_CXXFLAGS) \
+                                          $(OPENSSL_CXXFLAGS) \
+                                          $(PKIX_CXXFLAGS) \
+                                          -I$(PKIX_PREFIX)lib \
+                                          $(NULL)
