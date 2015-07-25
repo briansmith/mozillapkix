@@ -1,4 +1,3 @@
-sudo: false
 language: cpp
 
 matrix:
@@ -11,23 +10,66 @@ matrix:
     #
     # BEGIN GENERATED
 
-    - env: CLANG_VERSION=3.7 CMAKE_BUILD_TYPE=DEBUG BITS=64
+    - env: CLANG_VERSION=3.6 CMAKE_BUILD_TYPE=DEBUG BITS=32
       os: linux
       addons:
         apt:
           packages:
-            - clang-3.7
+            - clang-3.6
+            - g++-multilib
+            - gcc-multilib
+            - libc6-dev-i386
           sources:
-            - llvm-toolchain-precise
+            - llvm-toolchain-precise-3.6
             - ubuntu-toolchain-r-test
 
-    - env: GCC_VERSION=4.8 CMAKE_BUILD_TYPE=DEBUG BITS=64
+    - env: GCC_VERSION=4.8 CMAKE_BUILD_TYPE=DEBUG BITS=32
       os: linux
       addons:
         apt:
           packages:
             - g++-4.8
+            - g++-4.8-multilib
             - gcc-4.8
+            - gcc-4.8-multilib
+            - linux-libc-dev:i386
+          sources:
+            - ubuntu-toolchain-r-test
+
+    - env: CLANG_VERSION=3.5 CMAKE_BUILD_TYPE=DEBUG BITS=32
+      os: linux
+      addons:
+        apt:
+          packages:
+            - clang-3.5
+            - g++-multilib
+            - gcc-multilib
+            - libc6-dev-i386
+          sources:
+            - llvm-toolchain-precise-3.5
+            - ubuntu-toolchain-r-test
+
+    - env: CLANG_VERSION=3.4 CMAKE_BUILD_TYPE=DEBUG BITS=32
+      os: linux
+      addons:
+        apt:
+          packages:
+            - g++-multilib
+            - gcc-multilib
+            - libc6-dev-i386
+          sources:
+            - ubuntu-toolchain-r-test
+
+    - env: GCC_VERSION=5 CMAKE_BUILD_TYPE=DEBUG BITS=32
+      os: linux
+      addons:
+        apt:
+          packages:
+            - g++-5
+            - g++-5-multilib
+            - gcc-5
+            - gcc-5-multilib
+            - linux-libc-dev:i386
           sources:
             - ubuntu-toolchain-r-test
 
@@ -39,6 +81,16 @@ matrix:
             - clang-3.6
           sources:
             - llvm-toolchain-precise-3.6
+            - ubuntu-toolchain-r-test
+
+    - env: GCC_VERSION=4.8 CMAKE_BUILD_TYPE=DEBUG BITS=64
+      os: linux
+      addons:
+        apt:
+          packages:
+            - g++-4.8
+            - gcc-4.8
+          sources:
             - ubuntu-toolchain-r-test
 
     - env: CLANG_VERSION=3.5 CMAKE_BUILD_TYPE=DEBUG BITS=64
@@ -80,20 +132,7 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: CLANG_VERSION=3.7 CMAKE_BUILD_TYPE=DEBUG BITS=32
-      os: linux
-      addons:
-        apt:
-          packages:
-            - clang-3.7
-            - g++-multilib
-            - gcc-multilib
-            - libc6-dev-i386
-          sources:
-            - llvm-toolchain-precise
-            - ubuntu-toolchain-r-test
-
-    - env: CLANG_VERSION=3.6 CMAKE_BUILD_TYPE=DEBUG BITS=32
+    - env: CLANG_VERSION=3.6 CMAKE_BUILD_TYPE=RELWITHDEBINFO BITS=32
       os: linux
       addons:
         apt:
@@ -106,7 +145,20 @@ matrix:
             - llvm-toolchain-precise-3.6
             - ubuntu-toolchain-r-test
 
-    - env: CLANG_VERSION=3.5 CMAKE_BUILD_TYPE=DEBUG BITS=32
+    - env: GCC_VERSION=4.8 CMAKE_BUILD_TYPE=RELWITHDEBINFO BITS=32
+      os: linux
+      addons:
+        apt:
+          packages:
+            - g++-4.8
+            - g++-4.8-multilib
+            - gcc-4.8
+            - gcc-4.8-multilib
+            - linux-libc-dev:i386
+          sources:
+            - ubuntu-toolchain-r-test
+
+    - env: CLANG_VERSION=3.5 CMAKE_BUILD_TYPE=RELWITHDEBINFO BITS=32
       os: linux
       addons:
         apt:
@@ -119,7 +171,7 @@ matrix:
             - llvm-toolchain-precise-3.5
             - ubuntu-toolchain-r-test
 
-    - env: CLANG_VERSION=3.4 CMAKE_BUILD_TYPE=DEBUG BITS=32
+    - env: CLANG_VERSION=3.4 CMAKE_BUILD_TYPE=RELWITHDEBINFO BITS=32
       os: linux
       addons:
         apt:
@@ -130,7 +182,7 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: GCC_VERSION=5 CMAKE_BUILD_TYPE=DEBUG BITS=32
+    - env: GCC_VERSION=5 CMAKE_BUILD_TYPE=RELWITHDEBINFO BITS=32
       os: linux
       addons:
         apt:
@@ -143,14 +195,14 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: CLANG_VERSION=3.7 CMAKE_BUILD_TYPE=RELWITHDEBINFO BITS=64
+    - env: CLANG_VERSION=3.6 CMAKE_BUILD_TYPE=RELWITHDEBINFO BITS=64
       os: linux
       addons:
         apt:
           packages:
-            - clang-3.7
+            - clang-3.6
           sources:
-            - llvm-toolchain-precise
+            - llvm-toolchain-precise-3.6
             - ubuntu-toolchain-r-test
 
     - env: GCC_VERSION=4.8 CMAKE_BUILD_TYPE=RELWITHDEBINFO BITS=64
@@ -161,16 +213,6 @@ matrix:
             - g++-4.8
             - gcc-4.8
           sources:
-            - ubuntu-toolchain-r-test
-
-    - env: CLANG_VERSION=3.6 CMAKE_BUILD_TYPE=RELWITHDEBINFO BITS=64
-      os: linux
-      addons:
-        apt:
-          packages:
-            - clang-3.6
-          sources:
-            - llvm-toolchain-precise-3.6
             - ubuntu-toolchain-r-test
 
     - env: CLANG_VERSION=3.5 CMAKE_BUILD_TYPE=RELWITHDEBINFO BITS=64
@@ -212,69 +254,6 @@ matrix:
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: CLANG_VERSION=3.7 CMAKE_BUILD_TYPE=RELWITHDEBINFO BITS=32
-      os: linux
-      addons:
-        apt:
-          packages:
-            - clang-3.7
-            - g++-multilib
-            - gcc-multilib
-            - libc6-dev-i386
-          sources:
-            - llvm-toolchain-precise
-            - ubuntu-toolchain-r-test
-
-    - env: CLANG_VERSION=3.6 CMAKE_BUILD_TYPE=RELWITHDEBINFO BITS=32
-      os: linux
-      addons:
-        apt:
-          packages:
-            - clang-3.6
-            - g++-multilib
-            - gcc-multilib
-            - libc6-dev-i386
-          sources:
-            - llvm-toolchain-precise-3.6
-            - ubuntu-toolchain-r-test
-
-    - env: CLANG_VERSION=3.5 CMAKE_BUILD_TYPE=RELWITHDEBINFO BITS=32
-      os: linux
-      addons:
-        apt:
-          packages:
-            - clang-3.5
-            - g++-multilib
-            - gcc-multilib
-            - libc6-dev-i386
-          sources:
-            - llvm-toolchain-precise-3.5
-            - ubuntu-toolchain-r-test
-
-    - env: CLANG_VERSION=3.4 CMAKE_BUILD_TYPE=RELWITHDEBINFO BITS=32
-      os: linux
-      addons:
-        apt:
-          packages:
-            - g++-multilib
-            - gcc-multilib
-            - libc6-dev-i386
-          sources:
-            - ubuntu-toolchain-r-test
-
-    - env: GCC_VERSION=5 CMAKE_BUILD_TYPE=RELWITHDEBINFO BITS=32
-      os: linux
-      addons:
-        apt:
-          packages:
-            - g++-5
-            - g++-5-multilib
-            - gcc-5
-            - gcc-5-multilib
-            - linux-libc-dev:i386
-          sources:
-            - ubuntu-toolchain-r-test
-
     # END GENERATED
  
 install:
@@ -291,21 +270,6 @@ before_script:
   # the compiler, so clarify which exactly which versions are being used.
   - $CC --version
   - $CXX --version
-  - echo CMAKE_BUILD_TYPE is "$CMAKE_BUILD_TYPE"
-
-script:
-  - make openssl-configure CMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE BITS=$BITS
-  - make openssl CMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE BITS=$BITS
-  - make CMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE BITS=$BITS
-  - make check CMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE BITS=$BITS
-  - git clone -b master --depth 1 --single-branch https://github.com/briansmith/googletest build/gtest
-
-before_script:
-  # The version specifications leave some ambiguity over the precise version of
-  # the compiler, so clarify which exactly which versions are being used.
-  - $CC --version
-  - $CXX --version
-  - echo CMAKE_BUILD_TYPE is "$CMAKE_BUILD_TYPE"
 
 script:
   - make openssl-configure CMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE BITS=$BITS
