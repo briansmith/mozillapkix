@@ -68,7 +68,7 @@ PKIX_LIBCRYPTO_SRCS = \
 PKIX_LIBCRYPTO_OBJS = $(addprefix $(OBJ_PREFIX), \
                         $(PKIX_LIBCRYPTO_SRCS:.cpp=.o))
 
-$(PKIX_LIBCRYPTO_OBJS): CPPFLAGS += $(OPENSSL_CPPFLAGS)
+$(PKIX_LIBCRYPTO_OBJS): CPPFLAGS += $(CRYPTO_CPPFLAGS)
 $(PKIX_LIBCRYPTO_OBJS): CXXFLAGS += $(PKIX_CXXFLAGS)
 
 PKIX_LIBCRYPTO_GTEST_SRCS = \
@@ -78,9 +78,9 @@ PKIX_LIBCRYPTO_GTEST_SRCS = \
 PKIX_LIBCRYPTO_GTEST_OBJS = $(addprefix $(OBJ_PREFIX), \
                               $(PKIX_LIBCRYPTO_GTEST_SRCS:.cpp=.o))
 
-$(PKIX_LIBCRYPTO_GTEST_OBJS): CPPFLAGS += $(OPENSSL_CPPFLAGS)
+$(PKIX_LIBCRYPTO_GTEST_OBJS): CPPFLAGS += $(CRYPTO_CPPFLAGS)
 $(PKIX_LIBCRYPTO_GTEST_OBJS): CXXFLAGS += $(GTEST_CXXFLAGS) \
-                                          $(OPENSSL_CXXFLAGS) \
+                                          $(CRYPTO_CXXFLAGS) \
                                           $(PKIX_CXXFLAGS) \
                                           -I$(PKIX_PREFIX)lib \
                                           $(NULL)

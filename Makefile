@@ -16,11 +16,24 @@ include mk/top_of_makefile.mk
 
 GTEST_PREFIX = build/gtest/
 PKIX_PREFIX =
-OPENSSL_PREFIX = build/openssl/
 
 include mk/gtest.mk
-include mk/openssl.mk
 include mk/pkix.mk
+
+ifeq ($(CRYPTO),openssl)
+OPENSSL_PREFIX = build/openssl/
+include mk/openssl.mk
+CRYPTO_CPPFLAGS = $(OPENSSL_CPPFLAGS)
+CRYPTO_LDLIBS = -pthread $(OPENSSL_LDLIBS)
+else ifeq ($(CRYPTO),ring)
+RING_PREFIX = build/ring/
+include $(RING_PREFIX)/mk/ring.mk
+OBJS += $(RING_OBJS)
+LIBS += $(RING_LIB)
+CRYPTO_CPPFLAGS = $(RING_CPPFLAGS)
+CRYPTO_LIB = $(RING_LIB)
+CRYPTO_LDLIBS = $(RING_LDLIBS)
+endif
 
 TEST_ALL_OBJS = \
   $(GTEST_MAIN_OBJS) \
@@ -33,10 +46,9 @@ TEST_ALL_OBJS = \
 
 OBJS += $(TEST_ALL_OBJS)
 
-$(EXE_PREFIX)test: LDFLAGS += -pthread
-$(EXE_PREFIX)test: LDLIBS += $(OPENSSL_LDLIBS)
-$(EXE_PREFIX)test: $(TEST_ALL_OBJS)
-	$(CXX) $^ $(LDFLAGS) $(LDLIBS) -o $@
+$(EXE_PREFIX)test: LDLIBS += $(CRYPTO_LDLIBS)
+$(EXE_PREFIX)test: $(TEST_ALL_OBJS) $(CRYPTO_LIB)
+	$(CXX) $(filter-out $(CRYPTO_LIB), $^) $(LDFLAGS) $(LDLIBS) -o $@
 EXES += $(EXE_PREFIX)test
 
 .PHONY: check

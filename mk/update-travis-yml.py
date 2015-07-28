@@ -49,8 +49,14 @@ archs = [
     "x86_64",
 ]
 
+cryptos = [
+    "ring",
+    "openssl"
+]
+
 def format_entries():
-    return "\n".join([format_entry(compiler, mode, arch)
+    return "\n".join([format_entry(compiler, mode, arch, crypto)
+                      for crypto in cryptos
                       for arch in archs
                       for mode in modes
                       for compiler in compilers
@@ -59,7 +65,7 @@ def format_entries():
                       if not (compiler == "gcc-4.9" and arch == "x86")])
 
 entry_template = """
-    - env: %(uppercase)s_VERSION=%(version)s CMAKE_BUILD_TYPE=%(mode)s ARCH=%(arch)s
+    - env: %(uppercase)s_VERSION=%(version)s CMAKE_BUILD_TYPE=%(mode)s ARCH=%(arch)s CRYPTO=%(crypto)s
       os: linux
       addons:
         apt:
@@ -70,7 +76,7 @@ entry_sources_template = """
           sources:
             %(sources)s"""
 
-def format_entry(compiler, mode, arch):
+def format_entry(compiler, mode, arch, crypto):
     def prefix_all(prefix, xs):
         return [prefix + x for x in xs]
 
@@ -84,6 +90,7 @@ def format_entry(compiler, mode, arch):
 
     return template % {
             "arch" : arch,
+            "crypto" : crypto,
             "mode" : mode,
             "packages" : "\n            ".join(prefix_all("- ", packages)),
             "sources" : "\n            ".join(prefix_all("- ", sources)),
