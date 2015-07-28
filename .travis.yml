@@ -251,15 +251,28 @@ matrix:
             - ubuntu-toolchain-r-test
 
     # END GENERATED
- 
+
 install:
-  - if [[ "$GCC_VERSION" != "" ]]; then export CC="gcc-$GCC_VERSION" CXX="g++-$GCC_VERSION"; fi
-  - if [[ "$CLANG_VERSION" != "" ]]; then export CC="clang-$CLANG_VERSION" CXX="clang++-$CLANG_VERSION"; fi
+  - |
+    if [[ "$GCC_VERSION" != "" ]]
+    then export CC="gcc-$GCC_VERSION" CXX="g++-$GCC_VERSION"
+    fi
+
+  - |
+    if [[ "$CLANG_VERSION" != "" ]]
+    then export CC="clang-$CLANG_VERSION" CXX="clang++-$CLANG_VERSION"
+    fi
+
   # clang 3.4 is the default version of clang in Travis CI.
   - if [[ "$CLANG_VERSION" == "3.4" ]]; then export CC=clang CXX=clang++; fi
 
-  - git clone -b OpenSSL_1_0_2-stable --depth 1 --single-branch https://github.com/openssl/openssl build/openssl
-  - git clone -b master --depth 1 --single-branch https://github.com/briansmith/googletest build/gtest
+  - |
+    git clone -b OpenSSL_1_0_2-stable --depth 1 --single-branch \
+                 https://github.com/openssl/openssl build/openssl
+
+  - |
+    git clone -b master --depth 1 --single-branch \
+              https://github.com/briansmith/googletest build/gtest
 
 before_script:
   # The version specifications leave some ambiguity over the precise version of
