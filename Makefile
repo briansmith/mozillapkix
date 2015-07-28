@@ -30,6 +30,7 @@ TEST_ALL_OBJS = \
   $(PKIX_LIBCRYPTO_GTEST_OBJS) \
   $(PKIX_OBJS) \
   $(NULL)
+
 OBJS += $(TEST_ALL_OBJS)
 
 $(EXE_PREFIX)test: LDFLAGS += -pthread
@@ -37,6 +38,9 @@ $(EXE_PREFIX)test: LDLIBS += $(OPENSSL_LDLIBS)
 $(EXE_PREFIX)test: $(TEST_ALL_OBJS)
 	$(CXX) $^ $(LDFLAGS) $(LDLIBS) -o $@
 EXES += $(EXE_PREFIX)test
-TESTS += $(EXE_PREFIX)test
+
+.PHONY: check
+check::
+	$(EXE_PREFIX)test
 
 include mk/bottom_of_makefile.mk

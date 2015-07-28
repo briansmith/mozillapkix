@@ -15,6 +15,8 @@
 GENERATED = \
   $(EXES) \
   $(OBJS) \
+  $(OBJS:.o=.d) \
+  $(LIBS) \
   $(OTHER_GENERATED) \
   $(NULL)
 
@@ -38,13 +40,9 @@ $(OBJ_PREFIX)%.o: %.cc
 .PHONY: all
 all: $(GENERATED)
 
-.PHONY: check
-check:
-	$(foreach test, $(TESTS), "$(test)" &&) /bin/true
-
 .PHONY: clean
 clean:
-	$(RM) $(EXES) $(OBJS) $(OBJS:.o=.d)
+	$(RM) $(GENERATED)
 
 # The C/C++ compiler generates dependency info for #includes.
 

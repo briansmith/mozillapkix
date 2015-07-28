@@ -21,12 +21,12 @@ OPENSSL_LDLIBS ?= -L$(BUILD_PREFIX)lib -lcrypto -lssl -ldl
 OPENSSL_DIR_FLAGS ?= --openssldir=$(abspath $(BUILD_PREFIX))
 
 ifeq ($(OPENSSL_CONFIG_BASE),)
-ifeq ($(BITS),32)
+ifeq ($(ARCH),x86)
 OPENSSL_CONFIG_BASE = linux-elf
-else ifeq ($(BITS),64)
+else ifeq ($(ARCH),x86_64)
 OPENSSL_CONFIG_BASE = linux-x86_64
 else
-$(error OPENSSL_CONFIG_BASE not defined and unsupported BITS: $(BITS))
+$(error OPENSSL_CONFIG_BASE not defined and unsupported ARCH: $(ARCH))
 endif
 endif
 # Although we don't use CMake, we use a variable RELWITHDEBINFO with
@@ -45,7 +45,7 @@ endif
 OPENSSL_CONFIG_FLAGS ?= $(OPENSSL_CONFIG_BASE_PREFIX)$(OPENSSL_CONFIG_BASE) \
                         $(OPENSSL_OPTION_FLAGS) \
                         $(OPENSSL_DIR_FLAGS) \
-                        -m$(BITS) \
+                        $(ARCH_FLAGS) \
                         $(NULL)
 
 .PHONY: openssl-configure

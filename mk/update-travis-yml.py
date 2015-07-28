@@ -29,14 +29,14 @@ compilers = [
     # removed from the matrix for now.
     "clang-3.6", # Newest clang first.
     "gcc-4.8",   # Oldest GCC next.
-    
+
     # All other clang versions, newest to oldest.
     "clang-3.5",
     "clang-3.4",
 
     # All other GCC versions, newest to oldest.
     "gcc-5",
-    "gcc-4.9",    
+    "gcc-4.9",
 ]
 
 modes = [
@@ -51,26 +51,26 @@ archs = [
 
 def format_entries():
     return "\n".join([format_entry(compiler, mode, arch)
-                      for mode in modes
                       for arch in archs
+                      for mode in modes
                       for compiler in compilers
                       # XXX: 32-bit GCC 4.9 does not work because Travis does
                       # not have g++-4.9-multilib whitelisted for use.
                       if not (compiler == "gcc-4.9" and arch == "x86")])
-                      
+
 entry_template = """
-    - env: %(uppercase)s_VERSION=%(version)s CMAKE_BUILD_TYPE=%(mode)s BITS=%(bits)s
+    - env: %(uppercase)s_VERSION=%(version)s CMAKE_BUILD_TYPE=%(mode)s ARCH=%(arch)s
       os: linux
       addons:
         apt:
           packages:
-            %(packages)s
+            %(packages)s"""
+
+entry_sources_template = """
           sources:
             %(sources)s"""
 
 def format_entry(compiler, mode, arch):
-    bits = 64 if arch in ["x86_64"] else 32
-
     def prefix_all(prefix, xs):
         return [prefix + x for x in xs]
 
@@ -78,8 +78,12 @@ def format_entry(compiler, mode, arch):
     sources_with_dups = sum([get_sources_for_package(p) for p in packages],[])
     sources = sorted(list(set(sources_with_dups)))
     (compiler_name, compiler_version) = compiler.split("-")
-    return entry_template % {
-            "bits" : bits,
+    template = entry_template
+    if sources:
+        template += entry_sources_template
+
+    return template % {
+            "arch" : arch,
             "mode" : mode,
             "packages" : "\n            ".join(prefix_all("- ", packages)),
             "sources" : "\n            ".join(prefix_all("- ", sources)),
@@ -97,7 +101,7 @@ def get_packages_to_install(compiler, arch):
         packages = [compiler, replace_cc_with_cxx(compiler)]
     else:
         raise ValueError("unexpected compiler: %s" % compiler)
-        
+
     if arch == "x86":
         if compiler.startswith("clang-"):
             packages += ["libc6-dev-i386",
