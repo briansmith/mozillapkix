@@ -122,10 +122,20 @@ Result VerifyRSAPKCS1SignedDigestLibCrypto(const SignedDigest& signedDigest,
   const uint8_t *p = rsaPublicKey.UnsafeGetData();
   Input::size_type len = rsaPublicKey.GetLength();
   // d2i_RSAPublicKey's length argument has type long, not type size_t.
+  // Clang 3.4 (and only that version) emits this warning because the condition
+  // is always true.
+#if defined(__clang_major__) && __clang_major__ == 3 && __clang_minor__ <= 4
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wtautological-constant-out-of-range-compare"
+#endif
   if (sizeof(len) >= sizeof(long) &&
       len > static_cast<size_t>(std::numeric_limits<long>::max())) {
     return Result::ERROR_INVALID_KEY;
   }
+#if defined(__clang_major__) && __clang_major__ == 3 && __clang_minor__ <= 4
+#pragma GCC diagnostic pop
+#endif
+
   ScopedPtr<RSA, RSA_free> key(d2i_RSAPublicKey(nullptr, &p,
                                static_cast<long>(len)));
   if (!key.get()) {
