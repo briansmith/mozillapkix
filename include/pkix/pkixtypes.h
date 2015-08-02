@@ -167,8 +167,7 @@ private:
   Input publicPoint;
 
   // For RSA
-  Input modulus;
-  Input exponent;
+  Input rsaPublicKey;
 };
 
 class DERArray
@@ -338,14 +337,11 @@ public:
   // responsible for doing the mathematical verification of the public key
   // validity as specified in NIST SP 800-56A.
   //
-  // The modulus and exponent parameters are DER-encoded ASN.1 Integer values
-  // without the tag and length. In particular, there may be a leading zero
-  // byte to disambiguate a positive value with its high bit set from a two's
-  // complement negative value.
+  // The encoding of rsaPublicKey is described at
+  // https://tools.ietf.org/html/rfc3447#appendix-A.1.1.
   virtual Result VerifyRSAPKCS1SignedDigest(
                    const SignedDigest& signedDigest,
-                   Input subjectPublicKeyInfo, Input modulus, Input exponent)
-                   = 0;
+                   Input subjectPublicKeyInfo, Input rsaPublicKey) = 0;
 
   // Check that the given named ECC curve is acceptable for ECDSA signatures.
   //
@@ -378,7 +374,6 @@ public:
   // Section 2.3.4 of http://www.secg.org/SEC1-Ver-1.0.pdf describes how to
   // decode it.
   virtual Result VerifyECDSASignedDigest(const SignedDigest& signedDigest,
-                                         Input r, Input s,
                                          Input subjectPublicKeyInfo,
                                          NamedCurve curve, Input publicPoint)
                                          = 0;

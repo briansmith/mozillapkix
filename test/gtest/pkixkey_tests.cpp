@@ -93,14 +93,10 @@ class pkixkey_SyntacticallyValidRSAKeyTrustDomain final
 {
 public:
   pkixkey_SyntacticallyValidRSAKeyTrustDomain(
-    unsigned int expectedModulusSizeInBits,
-    const ByteString& expectedModulus,
-    const ByteString& expectedExponent)
+    unsigned int expectedModulusSizeInBits)
     : modulusSizeChecked(false)
     , verified(false)
     , expectedModulusSizeInBits(expectedModulusSizeInBits)
-    , expectedModulus(expectedModulus)
-    , expectedExponent(expectedExponent)
   {
   }
 
@@ -116,22 +112,17 @@ public:
 
   Result VerifyRSAPKCS1SignedDigest(const SignedDigest&,
                                     Input /*subjectPublicKeyInfo*/,
-                                    Input modulus, Input exponent)
-                                    override
+                                    Input /*rsaPublicKey*/) override
   {
     EXPECT_TRUE(modulusSizeChecked);
     EXPECT_FALSE(verified);
     verified = true;
-    EXPECT_TRUE(InputEqualsByteString(modulus, expectedModulus));
-    EXPECT_TRUE(InputEqualsByteString(exponent, expectedExponent));
     return Success;
   }
 
   bool modulusSizeChecked;
   bool verified;
   const unsigned int expectedModulusSizeInBits;
-  const ByteString expectedModulus;
-  const ByteString expectedExponent;
 };
 
 TEST_P(pkixkey_SyntacticallyValidRSAKey, Test)
@@ -152,8 +143,7 @@ TEST_P(pkixkey_SyntacticallyValidRSAKey, Test)
   ASSERT_EQ(Success, key.Init(EndEntityOrCA::MustBeEndEntity, spkiInput));
 
   pkixkey_SyntacticallyValidRSAKeyTrustDomain
-    trustDomain(params.modulusSizeInBits, params.modulusValue,
-                params.exponentValue);
+    trustDomain(params.modulusSizeInBits);
 
   ASSERT_EQ(Success, key.ParseAndCheck(trustDomain));
 

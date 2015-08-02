@@ -293,20 +293,19 @@ CloneReusedKeyPair()
 }
 
 Result
-TestVerifyECDSASignedDigest(const SignedDigest& signedDigest, Input r,
-                            Input s, Input /*subjectPublicKeyInfo*/,
-                            NamedCurve curve, Input publicPoint)
+TestVerifyECDSASignedDigest(const SignedDigest& signedDigest,
+                            Input /*subjectPublicKeyInfo*/, NamedCurve curve,
+                            Input publicPoint)
 {
-  return VerifyECDSASignedDigestLibCrypto(signedDigest, r, s, curve,
-                                          publicPoint);
+  return VerifyECDSASignedDigestLibCrypto(signedDigest, curve, publicPoint);
 }
 
 Result
 TestVerifyRSAPKCS1SignedDigest(const SignedDigest& signedDigest,
-                               Input /*subjectPublicKeyInfo*/, Input modulus,
-                               Input exponent)
+                               Input /*subjectPublicKeyInfo*/,
+                               Input rsaPublicKey)
 {
-  return VerifyRSAPKCS1SignedDigestLibCrypto(signedDigest, modulus, exponent);
+  return VerifyRSAPKCS1SignedDigestLibCrypto(signedDigest, rsaPublicKey);
 }
 
 Result

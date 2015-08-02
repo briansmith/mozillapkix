@@ -310,13 +310,12 @@ inline void DeleteTestKeyPair(TestKeyPair* keyPair) { delete keyPair; }
 typedef ScopedPtr<TestKeyPair, DeleteTestKeyPair> ScopedTestKeyPair;
 
 Result TestVerifyECDSASignedDigest(const SignedDigest& signedDigest,
-                                   Input r, Input s,
                                    Input subjectPublicKeyInfo,
                                    NamedCurve curve, Input publicPoint);
 
 Result TestVerifyRSAPKCS1SignedDigest(const SignedDigest& signedDigest,
                                       Input subjectPublicKeyInfo,
-                                      Input modulus, Input exponent);
+                                      Input rsaPublicKey);
 
 Result TestDigestBuf(Input item, DigestAlgorithm digestAlg,
                      /*out*/ uint8_t* digestBuf, size_t digestBufLen);
@@ -474,14 +473,13 @@ class MockCertIDCreationTrustDomain final : public TrustDomain
     abort();
   }
 
-  Result VerifyRSAPKCS1SignedDigest(const SignedDigest&, Input, Input, Input)
-                                    override
+  Result VerifyRSAPKCS1SignedDigest(const SignedDigest&, Input, Input) override
   {
     abort();
   }
 
-  Result VerifyECDSASignedDigest(const SignedDigest&, Input, Input, Input,
-                                 NamedCurve, Input) override
+  Result VerifyECDSASignedDigest(const SignedDigest&, Input, NamedCurve, Input)
+                                 override
   {
     abort();
   }

@@ -30,11 +30,10 @@
 namespace mozilla { namespace pkix {
 
 Result VerifyECDSASignedDigestLibCrypto(const SignedDigest& signedDigest,
-                                        Input r, Input s, NamedCurve curve,
-                                        Input publicPoint);
+                                        NamedCurve curve, Input publicPoint);
 
 Result VerifyRSAPKCS1SignedDigestLibCrypto(const SignedDigest& signedDigest,
-                                           Input modulus, Input exponent);
+                                           Input rsaPublicKey);
 
 Result DigestBufLibCrypto(Input item, DigestAlgorithm digestAlg,
                           /*out*/ uint8_t* digestBuf, size_t digestBufLen);

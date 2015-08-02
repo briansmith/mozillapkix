@@ -140,8 +140,8 @@ public:
                       Result::FATAL_ERROR_LIBRARY_FAILURE);
   }
 
-  Result VerifyECDSASignedDigest(const SignedDigest&, Input, Input, Input,
-                                 NamedCurve, Input) override
+  Result VerifyECDSASignedDigest(const SignedDigest&, Input, NamedCurve, Input)
+                                 override
   {
     ADD_FAILURE();
     return NotReached("VerifyECDSASignedDigest should not be called",
@@ -156,7 +156,7 @@ public:
                       Result::FATAL_ERROR_LIBRARY_FAILURE);
   }
 
-  Result VerifyRSAPKCS1SignedDigest(const SignedDigest&, Input, Input, Input)
+  Result VerifyRSAPKCS1SignedDigest(const SignedDigest&, Input, Input)
                                     override
   {
     ADD_FAILURE();
@@ -192,12 +192,11 @@ class DefaultCryptoTrustDomain : public EverythingFailsByDefaultTrustDomain
   }
 
   Result VerifyECDSASignedDigest(const SignedDigest& signedDigest,
-                                 Input r, Input s, Input subjectPublicKeyInfo,
-                                 NamedCurve curve, Input publicPoint) override
+                                 Input subjectPublicKeyInfo, NamedCurve curve,
+                                 Input publicPoint) override
   {
-    return TestVerifyECDSASignedDigest(signedDigest, r, s,
-                                       subjectPublicKeyInfo, curve,
-                                       publicPoint);
+    return TestVerifyECDSASignedDigest(signedDigest, subjectPublicKeyInfo,
+                                       curve, publicPoint);
   }
 
   Result CheckRSAPublicKeyModulusSizeInBits(EndEntityOrCA, unsigned int)
@@ -208,10 +207,10 @@ class DefaultCryptoTrustDomain : public EverythingFailsByDefaultTrustDomain
 
   Result VerifyRSAPKCS1SignedDigest(const SignedDigest& signedDigest,
                                     Input subjectPublicKeyInfo,
-                                    Input modulus, Input exponent) override
+                                    Input rsaPublicKey) override
   {
     return TestVerifyRSAPKCS1SignedDigest(signedDigest, subjectPublicKeyInfo,
-                                          modulus, exponent);
+                                          rsaPublicKey);
   }
 
   Result CheckValidityIsAcceptable(Time, Time, EndEntityOrCA, KeyPurposeId)

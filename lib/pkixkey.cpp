@@ -174,27 +174,35 @@ PublicKey::ParseAndCheck(TrustDomain& trustDomain)
       return rv;
     }
 
+    if (subjectPublicKeyReader.SkipToEnd(rsaPublicKey) != Input::OK) {
+      return Result::ERROR_BAD_DER;
+    }
+
+    Reader rsaPublicKeyReader(rsaPublicKey);
+
     // RSAPublicKey :: = SEQUENCE{
     //    modulus            INTEGER,    --n
     //    publicExponent     INTEGER  }  --e
-    rv = der::Nested(subjectPublicKeyReader, der::SEQUENCE,
+    rv = der::Nested(rsaPublicKeyReader, der::SEQUENCE,
                      [this, &trustDomain](Reader& r) {
       Input::size_type modulusSignificantBytes;
+      Input modulus;
       Result rv = der::PositiveInteger(r, modulus, &modulusSignificantBytes);
       if (rv != Success) {
         return rv;
       }
-      // XXX: Should we do additional checks of the modulus?
       rv = trustDomain.CheckRSAPublicKeyModulusSizeInBits(
              endEntityOrCA, modulusSignificantBytes * 8u);
       if (rv != Success) {
         return rv;
       }
-
-      // XXX: We don't allow the TrustDomain to validate the exponent.
-      // XXX: We don't do our own sanity checking of the exponent.
+      Input exponent;
       return der::PositiveInteger(r, exponent);
     });
+    if (rv != Success) {
+      return rv;
+    }
+    rv = der::End(rsaPublicKeyReader);
     if (rv != Success) {
       return rv;
     }
@@ -286,9 +294,9 @@ PublicKey::VerifySignedDigest(TrustDomain& trustDomain,
         return rv;
       }
 
-      return trustDomain.VerifyECDSASignedDigest(signedDigest, r, s,
-                                                 subjectPublicKeyInfo,
-                                                 curve, publicPoint);
+      return trustDomain.VerifyECDSASignedDigest(signedDigest,
+                                                 subjectPublicKeyInfo, curve,
+                                                 publicPoint);
     }
 
     case Type::RSA:
@@ -298,7 +306,7 @@ PublicKey::VerifySignedDigest(TrustDomain& trustDomain,
 
       return trustDomain.VerifyRSAPKCS1SignedDigest(signedDigest,
                                                     subjectPublicKeyInfo,
-                                                    modulus, exponent);
+                                                    rsaPublicKey);
 
     case Type::Unparsed:
       return Result::FATAL_ERROR_INVALID_STATE;

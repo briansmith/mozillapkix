@@ -24,7 +24,6 @@
 
 #include "pkix/pkixlibcrypto.h"
 
-#include "openssl/bn.h"
 #include "openssl/ecdsa.h"
 #include "openssl/objects.h"
 #include "openssl/rsa.h"
@@ -33,12 +32,6 @@
 #include "ScopedPtr.h"
 
 namespace mozilla { namespace pkix {
-
-namespace {
-
-typedef ScopedPtr<BIGNUM, BN_free> ScopedBIGNUM;
-
-} // namespace
 
 Result
 DigestBufLibCrypto(Input item, DigestAlgorithm digestAlg,
@@ -75,8 +68,7 @@ DigestBufLibCrypto(Input item, DigestAlgorithm digestAlg,
 }
 
 Result VerifyECDSASignedDigestLibCrypto(const SignedDigest& signedDigest,
-                                        Input r, Input s, NamedCurve curve,
-                                        Input publicPoint)
+                                        NamedCurve curve, Input publicPoint)
 {
   int groupNID;
   switch (curve) {
@@ -104,23 +96,10 @@ Result VerifyECDSASignedDigestLibCrypto(const SignedDigest& signedDigest,
     return Result::ERROR_INVALID_KEY;
   }
 
-  // |r| and |s| aren't allocated on the stack because the OpenSSL trunk has
-  // made BIGNUM an opaque type, and we want to share this code across all
-  // variants of OpenSSL.
-  ScopedBIGNUM r_bn(BN_bin2bn(r.UnsafeGetData(), r.GetLength(), nullptr));
-  if (!r_bn) {
-    return Result::FATAL_ERROR_NO_MEMORY;
-  }
-  ScopedBIGNUM s_bn(BN_bin2bn(s.UnsafeGetData(), s.GetLength(), nullptr));
-  if (!s_bn) {
-    return Result::FATAL_ERROR_NO_MEMORY;
-  }
-  ECDSA_SIG sig;
-  sig.r = r_bn.get();
-  sig.s = s_bn.get();
-
-  if (ECDSA_do_verify(signedDigest.digest.UnsafeGetData(),
-                      signedDigest.digest.GetLength(), &sig, key.get()) != 1) {
+  if (ECDSA_verify(0, signedDigest.digest.UnsafeGetData(),
+                   signedDigest.digest.GetLength(),
+                   signedDigest.signature.UnsafeGetData(),
+                   signedDigest.signature.GetLength(), key.get()) != 1) {
     return Result::ERROR_BAD_SIGNATURE;
   }
 
@@ -128,24 +107,35 @@ Result VerifyECDSASignedDigestLibCrypto(const SignedDigest& signedDigest,
 }
 
 Result VerifyRSAPKCS1SignedDigestLibCrypto(const SignedDigest& signedDigest,
-                                           Input modulus, Input exponent)
+                                           Input rsaPublicKey)
 {
-  ScopedBIGNUM n(BN_bin2bn(modulus.UnsafeGetData(), modulus.GetLength(),
-                           nullptr));
-  if (!n) {
-    return Result::FATAL_ERROR_NO_MEMORY;
+#if defined(OPENSSL_IS_BORINGSSL)
+  ScopedPtr<RSA, RSA_free>
+    key(RSA_public_key_from_bytes(rsaPublicKey.UnsafeGetData(),
+        rsaPublicKey.GetLength()));
+  if (!key.get()) {
+    return Result::ERROR_INVALID_KEY;
   }
-  ScopedBIGNUM e(BN_bin2bn(exponent.UnsafeGetData(), exponent.GetLength(),
-                           nullptr));
-  if (!e) {
-    return Result::FATAL_ERROR_NO_MEMORY;
+#else
+  // OpenSSL doesn't have RSA_public_key_from_bytes so we have to do things a
+  // worse way.
+  const uint8_t *p = rsaPublicKey.UnsafeGetData();
+  Input::size_type len = rsaPublicKey.GetLength();
+  // d2i_RSAPublicKey's length argument has type long, not type size_t.
+  if (sizeof(len) >= sizeof(long) &&
+      len > static_cast<size_t>(std::numeric_limits<long>::max())) {
+    return Result::ERROR_INVALID_KEY;
   }
-  ScopedPtr<RSA, RSA_free> key(RSA_new());
-  if (!key) {
-    return Result::FATAL_ERROR_NO_MEMORY;
+  ScopedPtr<RSA, RSA_free> key(d2i_RSAPublicKey(nullptr, &p,
+                               static_cast<long>(len)));
+  if (!key.get()) {
+    return Result::ERROR_INVALID_KEY;
   }
-  key->n = n.release();
-  key->e = e.release();
+  // Extra junk after the RSAPublicKey structure.
+  if (p != rsaPublicKey.UnsafeGetData() + len) {
+    return Result::ERROR_INVALID_KEY;
+  }
+#endif
 
   int digestNID;
   switch (signedDigest.digestAlgorithm) {
