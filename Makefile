@@ -27,7 +27,7 @@ CRYPTO_CPPFLAGS = $(OPENSSL_CPPFLAGS)
 CRYPTO_LDLIBS = -pthread $(OPENSSL_LDLIBS)
 else ifeq ($(CRYPTO),ring)
 RING_PREFIX = build/ring/
-include $(RING_PREFIX)/mk/ring.mk
+include $(RING_PREFIX)mk/ring.mk
 OBJS += $(RING_OBJS)
 LIBS += $(RING_LIB)
 CRYPTO_CPPFLAGS = $(RING_CPPFLAGS)
@@ -48,7 +48,7 @@ OBJS += $(TEST_ALL_OBJS)
 
 $(EXE_PREFIX)test: LDLIBS += $(CRYPTO_LDLIBS)
 $(EXE_PREFIX)test: $(TEST_ALL_OBJS) $(CRYPTO_LIB)
-	$(CXX) $(filter-out $(CRYPTO_LIB), $^) $(LDFLAGS) $(LDLIBS) -o $@
+	$(CXX) $(filter-out $(CRYPTO_LIB), $^) $(LDFLAGS) $(LDLIBS) $(TARGET_ARCH) -o $@
 EXES += $(EXE_PREFIX)test
 
 .PHONY: check

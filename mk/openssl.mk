@@ -21,14 +21,25 @@ OPENSSL_LDLIBS ?= -L$(BUILD_PREFIX)lib -lcrypto -lssl -ldl
 OPENSSL_DIR_FLAGS ?= --openssldir=$(abspath $(BUILD_PREFIX))
 
 ifeq ($(OPENSSL_CONFIG_BASE),)
-ifeq ($(ARCH),x86)
-OPENSSL_CONFIG_BASE = linux-elf
-else ifeq ($(ARCH),x86_64)
-OPENSSL_CONFIG_BASE = linux-x86_64
-else
-$(error OPENSSL_CONFIG_BASE not defined and unsupported ARCH: $(ARCH))
+  ifeq ($(findstring darwin,$(TARGET_SYS)),darwin)
+    ifeq ($(TARGET_ARCH_BASE),x86)
+      OPENSSL_CONFIG_BASE = darwin-i386-cc
+    else ifeq ($(TARGET_ARCH_BASE),x86_64)
+      OPENSSL_CONFIG_BASE = darwin64-x86_64-cc
+    endif
+  else ifeq ($(TARGET_SYS),linux)
+    ifeq ($(TARGET_ARCH_BASE),x86)
+      OPENSSL_CONFIG_BASE = linux-elf
+    else ifeq ($(TARGET_ARCH_BASE),x86_64)
+      OPENSSL_CONFIG_BASE = linux-x86_64
+    endif
+  endif
 endif
+
+ifeq ($(OPENSSL_CONFIG_BASE),)
+$(error OPENSSL_CONFIG_BASE not defined and cannot be inferred)
 endif
+
 # Although we don't use CMake, we use a variable RELWITHDEBINFO with
 # similar semantics to the CMake variable of that name.
 ifeq ($(CMAKE_BUILD_TYPE),DEBUG)
@@ -45,7 +56,7 @@ endif
 OPENSSL_CONFIG_FLAGS ?= $(OPENSSL_CONFIG_BASE_PREFIX)$(OPENSSL_CONFIG_BASE) \
                         $(OPENSSL_OPTION_FLAGS) \
                         $(OPENSSL_DIR_FLAGS) \
-                        $(ARCH_FLAGS) \
+                        $(TARGET_ARCH) \
                         $(NULL)
 
 .PHONY: openssl-configure
