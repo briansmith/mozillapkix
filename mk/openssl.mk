@@ -22,15 +22,15 @@ OPENSSL_DIR_FLAGS ?= --openssldir=$(abspath $(BUILD_PREFIX))
 
 ifeq ($(OPENSSL_CONFIG_BASE),)
   ifeq ($(findstring darwin,$(TARGET_SYS)),darwin)
-    ifeq ($(TARGET_ARCH_BASE),x86)
+    ifeq ($(TARGET_ARCH_NORMAL),x86)
       OPENSSL_CONFIG_BASE = darwin-i386-cc
-    else ifeq ($(TARGET_ARCH_BASE),x86_64)
+    else ifeq ($(TARGET_ARCH_NORMAL),x86_64)
       OPENSSL_CONFIG_BASE = darwin64-x86_64-cc
     endif
   else ifeq ($(TARGET_SYS),linux)
-    ifeq ($(TARGET_ARCH_BASE),x86)
+    ifeq ($(TARGET_ARCH_NORMAL),x86)
       OPENSSL_CONFIG_BASE = linux-elf
-    else ifeq ($(TARGET_ARCH_BASE),x86_64)
+    else ifeq ($(TARGET_ARCH_NORMAL),x86_64)
       OPENSSL_CONFIG_BASE = linux-x86_64
     endif
   endif
