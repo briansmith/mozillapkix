@@ -22,12 +22,17 @@
  * limitations under the License.
  */
 
+#if defined(_MSC_VER)
+ // C4548: expression before comma has no effect; expected expression with
+ //        side-effect.
+#pragma warning(disable: 4548)
+#endif
+
 #if defined(_MSC_VER) && _MSC_VER < 1900
 // When building with -D_HAS_EXCEPTIONS=0, MSVC's <xtree> header triggers
 // warning C4702: unreachable code.
 // https://connect.microsoft.com/VisualStudio/feedback/details/809962
-#pragma warning(push)
-#pragma warning(disable: 4702)
+#pragma warning(push, 3)
 #endif
 
 #include <map>
