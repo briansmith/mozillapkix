@@ -1,5 +1,3 @@
-language: cpp
-
 matrix:
   fast_finish: true
   include:
@@ -10,125 +8,160 @@ matrix:
     #
     # BEGIN GENERATED
 
-    - env: TARGET=x86_64-apple-darwin-macho USE_CC=clang USE_CXX=clang++ CRYPTO=ring CMAKE_BUILD_TYPE=DEBUG
+    - env: TARGET_X=x86_64-apple-darwin CC_X=clang CXX_X=clang++ MODE_X=DEBUG CRYPTO_X=ring
+      language: cpp
       os: osx
 
-    - env: TARGET=x86_64-apple-darwin-macho USE_CC=clang USE_CXX=clang++ CRYPTO=ring CMAKE_BUILD_TYPE=RELWITHDEBINFO
+    - env: TARGET_X=x86_64-apple-darwin CC_X=clang CXX_X=clang++ MODE_X=RELWITHDEBINFO CRYPTO_X=ring
+      language: cpp
       os: osx
 
-    - env: TARGET=i586-apple-darwin-macho USE_CC=clang USE_CXX=clang++ CRYPTO=ring CMAKE_BUILD_TYPE=DEBUG
+    - env: TARGET_X=i586-apple-darwin CC_X=clang CXX_X=clang++ MODE_X=DEBUG CRYPTO_X=ring
+      language: cpp
       os: osx
 
-    - env: TARGET=i586-apple-darwin-macho USE_CC=clang USE_CXX=clang++ CRYPTO=ring CMAKE_BUILD_TYPE=RELWITHDEBINFO
+    - env: TARGET_X=i586-apple-darwin CC_X=clang CXX_X=clang++ MODE_X=RELWITHDEBINFO CRYPTO_X=ring
+      language: cpp
       os: osx
 
-    - env: TARGET=x86_64-pc-linux-gnu USE_CC=clang-3.6 USE_CXX=clang++-3.6 CRYPTO=ring CMAKE_BUILD_TYPE=DEBUG
+    - env: TARGET_X=x86_64-pc-linux-gnu CC_X=clang-3.6 CXX_X=clang++-3.6 MODE_X=DEBUG CRYPTO_X=ring
+      language: cpp
       os: linux
       addons:
         apt:
           packages:
             - clang-3.6
+            - yasm
           sources:
             - llvm-toolchain-precise-3.6
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=x86_64-pc-linux-gnu USE_CC=clang-3.6 USE_CXX=clang++-3.6 CRYPTO=ring CMAKE_BUILD_TYPE=RELWITHDEBINFO
+    - env: TARGET_X=x86_64-pc-linux-gnu CC_X=clang-3.6 CXX_X=clang++-3.6 MODE_X=RELWITHDEBINFO CRYPTO_X=ring
+      language: cpp
       os: linux
       addons:
         apt:
           packages:
             - clang-3.6
+            - yasm
           sources:
             - llvm-toolchain-precise-3.6
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=x86_64-pc-linux-gnu USE_CC=gcc-4.8 USE_CXX=g++-4.8 CRYPTO=ring CMAKE_BUILD_TYPE=DEBUG
+    - env: TARGET_X=x86_64-pc-linux-gnu CC_X=gcc-4.8 CXX_X=g++-4.8 MODE_X=DEBUG CRYPTO_X=ring
+      language: cpp
       os: linux
       addons:
         apt:
           packages:
             - g++-4.8
             - gcc-4.8
+            - yasm
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=x86_64-pc-linux-gnu USE_CC=gcc-4.8 USE_CXX=g++-4.8 CRYPTO=ring CMAKE_BUILD_TYPE=RELWITHDEBINFO
+    - env: TARGET_X=x86_64-pc-linux-gnu CC_X=gcc-4.8 CXX_X=g++-4.8 MODE_X=RELWITHDEBINFO CRYPTO_X=ring
+      language: cpp
       os: linux
       addons:
         apt:
           packages:
             - g++-4.8
             - gcc-4.8
+            - yasm
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=x86_64-pc-linux-gnu USE_CC=clang-3.5 USE_CXX=clang++-3.5 CRYPTO=ring CMAKE_BUILD_TYPE=DEBUG
+    - env: TARGET_X=x86_64-pc-linux-gnu CC_X=clang-3.5 CXX_X=clang++-3.5 MODE_X=DEBUG CRYPTO_X=ring
+      language: cpp
       os: linux
       addons:
         apt:
           packages:
             - clang-3.5
+            - yasm
           sources:
             - llvm-toolchain-precise-3.5
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=x86_64-pc-linux-gnu USE_CC=clang-3.5 USE_CXX=clang++-3.5 CRYPTO=ring CMAKE_BUILD_TYPE=RELWITHDEBINFO
+    - env: TARGET_X=x86_64-pc-linux-gnu CC_X=clang-3.5 CXX_X=clang++-3.5 MODE_X=RELWITHDEBINFO CRYPTO_X=ring
+      language: cpp
       os: linux
       addons:
         apt:
           packages:
             - clang-3.5
+            - yasm
           sources:
             - llvm-toolchain-precise-3.5
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=x86_64-pc-linux-gnu USE_CC=clang USE_CXX=clang++ CRYPTO=ring CMAKE_BUILD_TYPE=DEBUG
+    - env: TARGET_X=x86_64-pc-linux-gnu CC_X=clang CXX_X=clang++ MODE_X=DEBUG CRYPTO_X=ring
+      language: cpp
       os: linux
+      addons:
+        apt:
+          packages:
+            - yasm
 
-    - env: TARGET=x86_64-pc-linux-gnu USE_CC=clang USE_CXX=clang++ CRYPTO=ring CMAKE_BUILD_TYPE=RELWITHDEBINFO
+    - env: TARGET_X=x86_64-pc-linux-gnu CC_X=clang CXX_X=clang++ MODE_X=RELWITHDEBINFO CRYPTO_X=ring
+      language: cpp
       os: linux
+      addons:
+        apt:
+          packages:
+            - yasm
 
-    - env: TARGET=x86_64-pc-linux-gnu USE_CC=gcc-5 USE_CXX=g++-5 CRYPTO=ring CMAKE_BUILD_TYPE=DEBUG
+    - env: TARGET_X=x86_64-pc-linux-gnu CC_X=gcc-5 CXX_X=g++-5 MODE_X=DEBUG CRYPTO_X=ring
+      language: cpp
       os: linux
       addons:
         apt:
           packages:
             - g++-5
             - gcc-5
+            - yasm
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=x86_64-pc-linux-gnu USE_CC=gcc-5 USE_CXX=g++-5 CRYPTO=ring CMAKE_BUILD_TYPE=RELWITHDEBINFO
+    - env: TARGET_X=x86_64-pc-linux-gnu CC_X=gcc-5 CXX_X=g++-5 MODE_X=RELWITHDEBINFO CRYPTO_X=ring
+      language: cpp
       os: linux
       addons:
         apt:
           packages:
             - g++-5
             - gcc-5
+            - yasm
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=x86_64-pc-linux-gnu USE_CC=gcc-4.9 USE_CXX=g++-4.9 CRYPTO=ring CMAKE_BUILD_TYPE=DEBUG
+    - env: TARGET_X=x86_64-pc-linux-gnu CC_X=gcc-4.9 CXX_X=g++-4.9 MODE_X=DEBUG CRYPTO_X=ring
+      language: cpp
       os: linux
       addons:
         apt:
           packages:
             - g++-4.9
             - gcc-4.9
+            - yasm
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=x86_64-pc-linux-gnu USE_CC=gcc-4.9 USE_CXX=g++-4.9 CRYPTO=ring CMAKE_BUILD_TYPE=RELWITHDEBINFO
+    - env: TARGET_X=x86_64-pc-linux-gnu CC_X=gcc-4.9 CXX_X=g++-4.9 MODE_X=RELWITHDEBINFO CRYPTO_X=ring
+      language: cpp
       os: linux
       addons:
         apt:
           packages:
             - g++-4.9
             - gcc-4.9
+            - yasm
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=i586-pc-linux-gnu USE_CC=clang-3.6 USE_CXX=clang++-3.6 CRYPTO=ring CMAKE_BUILD_TYPE=DEBUG
+    - env: TARGET_X=i586-pc-linux-gnu CC_X=clang-3.6 CXX_X=clang++-3.6 MODE_X=DEBUG CRYPTO_X=ring
+      language: cpp
       os: linux
       addons:
         apt:
@@ -137,11 +170,13 @@ matrix:
             - g++-multilib
             - gcc-multilib
             - libc6-dev-i386
+            - yasm
           sources:
             - llvm-toolchain-precise-3.6
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=i586-pc-linux-gnu USE_CC=clang-3.6 USE_CXX=clang++-3.6 CRYPTO=ring CMAKE_BUILD_TYPE=RELWITHDEBINFO
+    - env: TARGET_X=i586-pc-linux-gnu CC_X=clang-3.6 CXX_X=clang++-3.6 MODE_X=RELWITHDEBINFO CRYPTO_X=ring
+      language: cpp
       os: linux
       addons:
         apt:
@@ -150,11 +185,13 @@ matrix:
             - g++-multilib
             - gcc-multilib
             - libc6-dev-i386
+            - yasm
           sources:
             - llvm-toolchain-precise-3.6
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=i586-pc-linux-gnu USE_CC=gcc-4.8 USE_CXX=g++-4.8 CRYPTO=ring CMAKE_BUILD_TYPE=DEBUG
+    - env: TARGET_X=i586-pc-linux-gnu CC_X=gcc-4.8 CXX_X=g++-4.8 MODE_X=DEBUG CRYPTO_X=ring
+      language: cpp
       os: linux
       addons:
         apt:
@@ -164,10 +201,12 @@ matrix:
             - gcc-4.8
             - gcc-4.8-multilib
             - linux-libc-dev:i386
+            - yasm
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=i586-pc-linux-gnu USE_CC=gcc-4.8 USE_CXX=g++-4.8 CRYPTO=ring CMAKE_BUILD_TYPE=RELWITHDEBINFO
+    - env: TARGET_X=i586-pc-linux-gnu CC_X=gcc-4.8 CXX_X=g++-4.8 MODE_X=RELWITHDEBINFO CRYPTO_X=ring
+      language: cpp
       os: linux
       addons:
         apt:
@@ -177,10 +216,12 @@ matrix:
             - gcc-4.8
             - gcc-4.8-multilib
             - linux-libc-dev:i386
+            - yasm
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=i586-pc-linux-gnu USE_CC=clang-3.5 USE_CXX=clang++-3.5 CRYPTO=ring CMAKE_BUILD_TYPE=DEBUG
+    - env: TARGET_X=i586-pc-linux-gnu CC_X=clang-3.5 CXX_X=clang++-3.5 MODE_X=DEBUG CRYPTO_X=ring
+      language: cpp
       os: linux
       addons:
         apt:
@@ -189,11 +230,13 @@ matrix:
             - g++-multilib
             - gcc-multilib
             - libc6-dev-i386
+            - yasm
           sources:
             - llvm-toolchain-precise-3.5
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=i586-pc-linux-gnu USE_CC=clang-3.5 USE_CXX=clang++-3.5 CRYPTO=ring CMAKE_BUILD_TYPE=RELWITHDEBINFO
+    - env: TARGET_X=i586-pc-linux-gnu CC_X=clang-3.5 CXX_X=clang++-3.5 MODE_X=RELWITHDEBINFO CRYPTO_X=ring
+      language: cpp
       os: linux
       addons:
         apt:
@@ -202,11 +245,13 @@ matrix:
             - g++-multilib
             - gcc-multilib
             - libc6-dev-i386
+            - yasm
           sources:
             - llvm-toolchain-precise-3.5
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=i586-pc-linux-gnu USE_CC=clang USE_CXX=clang++ CRYPTO=ring CMAKE_BUILD_TYPE=DEBUG
+    - env: TARGET_X=i586-pc-linux-gnu CC_X=clang CXX_X=clang++ MODE_X=DEBUG CRYPTO_X=ring
+      language: cpp
       os: linux
       addons:
         apt:
@@ -214,10 +259,12 @@ matrix:
             - g++-multilib
             - gcc-multilib
             - libc6-dev-i386
+            - yasm
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=i586-pc-linux-gnu USE_CC=clang USE_CXX=clang++ CRYPTO=ring CMAKE_BUILD_TYPE=RELWITHDEBINFO
+    - env: TARGET_X=i586-pc-linux-gnu CC_X=clang CXX_X=clang++ MODE_X=RELWITHDEBINFO CRYPTO_X=ring
+      language: cpp
       os: linux
       addons:
         apt:
@@ -225,10 +272,12 @@ matrix:
             - g++-multilib
             - gcc-multilib
             - libc6-dev-i386
+            - yasm
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=i586-pc-linux-gnu USE_CC=gcc-5 USE_CXX=g++-5 CRYPTO=ring CMAKE_BUILD_TYPE=DEBUG
+    - env: TARGET_X=i586-pc-linux-gnu CC_X=gcc-5 CXX_X=g++-5 MODE_X=DEBUG CRYPTO_X=ring
+      language: cpp
       os: linux
       addons:
         apt:
@@ -238,10 +287,12 @@ matrix:
             - gcc-5
             - gcc-5-multilib
             - linux-libc-dev:i386
+            - yasm
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=i586-pc-linux-gnu USE_CC=gcc-5 USE_CXX=g++-5 CRYPTO=ring CMAKE_BUILD_TYPE=RELWITHDEBINFO
+    - env: TARGET_X=i586-pc-linux-gnu CC_X=gcc-5 CXX_X=g++-5 MODE_X=RELWITHDEBINFO CRYPTO_X=ring
+      language: cpp
       os: linux
       addons:
         apt:
@@ -251,116 +302,148 @@ matrix:
             - gcc-5
             - gcc-5-multilib
             - linux-libc-dev:i386
+            - yasm
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=x86_64-pc-linux-gnu NO_ASM=NO_ASM=1 USE_CC=clang-3.6 USE_CXX=clang++-3.6 CRYPTO=ring CMAKE_BUILD_TYPE=DEBUG
+    - env: TARGET_X=x86_64-pc-linux-gnu NO_ASM_X=1 CC_X=clang-3.6 CXX_X=clang++-3.6 MODE_X=DEBUG CRYPTO_X=ring
+      language: cpp
       os: linux
       addons:
         apt:
           packages:
             - clang-3.6
+            - yasm
           sources:
             - llvm-toolchain-precise-3.6
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=x86_64-pc-linux-gnu NO_ASM=NO_ASM=1 USE_CC=clang-3.6 USE_CXX=clang++-3.6 CRYPTO=ring CMAKE_BUILD_TYPE=RELWITHDEBINFO
+    - env: TARGET_X=x86_64-pc-linux-gnu NO_ASM_X=1 CC_X=clang-3.6 CXX_X=clang++-3.6 MODE_X=RELWITHDEBINFO CRYPTO_X=ring
+      language: cpp
       os: linux
       addons:
         apt:
           packages:
             - clang-3.6
+            - yasm
           sources:
             - llvm-toolchain-precise-3.6
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=x86_64-pc-linux-gnu NO_ASM=NO_ASM=1 USE_CC=gcc-4.8 USE_CXX=g++-4.8 CRYPTO=ring CMAKE_BUILD_TYPE=DEBUG
+    - env: TARGET_X=x86_64-pc-linux-gnu NO_ASM_X=1 CC_X=gcc-4.8 CXX_X=g++-4.8 MODE_X=DEBUG CRYPTO_X=ring
+      language: cpp
       os: linux
       addons:
         apt:
           packages:
             - g++-4.8
             - gcc-4.8
+            - yasm
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=x86_64-pc-linux-gnu NO_ASM=NO_ASM=1 USE_CC=gcc-4.8 USE_CXX=g++-4.8 CRYPTO=ring CMAKE_BUILD_TYPE=RELWITHDEBINFO
+    - env: TARGET_X=x86_64-pc-linux-gnu NO_ASM_X=1 CC_X=gcc-4.8 CXX_X=g++-4.8 MODE_X=RELWITHDEBINFO CRYPTO_X=ring
+      language: cpp
       os: linux
       addons:
         apt:
           packages:
             - g++-4.8
             - gcc-4.8
+            - yasm
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=x86_64-pc-linux-gnu NO_ASM=NO_ASM=1 USE_CC=clang-3.5 USE_CXX=clang++-3.5 CRYPTO=ring CMAKE_BUILD_TYPE=DEBUG
+    - env: TARGET_X=x86_64-pc-linux-gnu NO_ASM_X=1 CC_X=clang-3.5 CXX_X=clang++-3.5 MODE_X=DEBUG CRYPTO_X=ring
+      language: cpp
       os: linux
       addons:
         apt:
           packages:
             - clang-3.5
+            - yasm
           sources:
             - llvm-toolchain-precise-3.5
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=x86_64-pc-linux-gnu NO_ASM=NO_ASM=1 USE_CC=clang-3.5 USE_CXX=clang++-3.5 CRYPTO=ring CMAKE_BUILD_TYPE=RELWITHDEBINFO
+    - env: TARGET_X=x86_64-pc-linux-gnu NO_ASM_X=1 CC_X=clang-3.5 CXX_X=clang++-3.5 MODE_X=RELWITHDEBINFO CRYPTO_X=ring
+      language: cpp
       os: linux
       addons:
         apt:
           packages:
             - clang-3.5
+            - yasm
           sources:
             - llvm-toolchain-precise-3.5
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=x86_64-pc-linux-gnu NO_ASM=NO_ASM=1 USE_CC=clang USE_CXX=clang++ CRYPTO=ring CMAKE_BUILD_TYPE=DEBUG
+    - env: TARGET_X=x86_64-pc-linux-gnu NO_ASM_X=1 CC_X=clang CXX_X=clang++ MODE_X=DEBUG CRYPTO_X=ring
+      language: cpp
       os: linux
+      addons:
+        apt:
+          packages:
+            - yasm
 
-    - env: TARGET=x86_64-pc-linux-gnu NO_ASM=NO_ASM=1 USE_CC=clang USE_CXX=clang++ CRYPTO=ring CMAKE_BUILD_TYPE=RELWITHDEBINFO
+    - env: TARGET_X=x86_64-pc-linux-gnu NO_ASM_X=1 CC_X=clang CXX_X=clang++ MODE_X=RELWITHDEBINFO CRYPTO_X=ring
+      language: cpp
       os: linux
+      addons:
+        apt:
+          packages:
+            - yasm
 
-    - env: TARGET=x86_64-pc-linux-gnu NO_ASM=NO_ASM=1 USE_CC=gcc-5 USE_CXX=g++-5 CRYPTO=ring CMAKE_BUILD_TYPE=DEBUG
+    - env: TARGET_X=x86_64-pc-linux-gnu NO_ASM_X=1 CC_X=gcc-5 CXX_X=g++-5 MODE_X=DEBUG CRYPTO_X=ring
+      language: cpp
       os: linux
       addons:
         apt:
           packages:
             - g++-5
             - gcc-5
+            - yasm
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=x86_64-pc-linux-gnu NO_ASM=NO_ASM=1 USE_CC=gcc-5 USE_CXX=g++-5 CRYPTO=ring CMAKE_BUILD_TYPE=RELWITHDEBINFO
+    - env: TARGET_X=x86_64-pc-linux-gnu NO_ASM_X=1 CC_X=gcc-5 CXX_X=g++-5 MODE_X=RELWITHDEBINFO CRYPTO_X=ring
+      language: cpp
       os: linux
       addons:
         apt:
           packages:
             - g++-5
             - gcc-5
+            - yasm
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=x86_64-pc-linux-gnu NO_ASM=NO_ASM=1 USE_CC=gcc-4.9 USE_CXX=g++-4.9 CRYPTO=ring CMAKE_BUILD_TYPE=DEBUG
+    - env: TARGET_X=x86_64-pc-linux-gnu NO_ASM_X=1 CC_X=gcc-4.9 CXX_X=g++-4.9 MODE_X=DEBUG CRYPTO_X=ring
+      language: cpp
       os: linux
       addons:
         apt:
           packages:
             - g++-4.9
             - gcc-4.9
+            - yasm
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=x86_64-pc-linux-gnu NO_ASM=NO_ASM=1 USE_CC=gcc-4.9 USE_CXX=g++-4.9 CRYPTO=ring CMAKE_BUILD_TYPE=RELWITHDEBINFO
+    - env: TARGET_X=x86_64-pc-linux-gnu NO_ASM_X=1 CC_X=gcc-4.9 CXX_X=g++-4.9 MODE_X=RELWITHDEBINFO CRYPTO_X=ring
+      language: cpp
       os: linux
       addons:
         apt:
           packages:
             - g++-4.9
             - gcc-4.9
+            - yasm
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=i586-pc-linux-gnu NO_ASM=NO_ASM=1 USE_CC=clang-3.6 USE_CXX=clang++-3.6 CRYPTO=ring CMAKE_BUILD_TYPE=DEBUG
+    - env: TARGET_X=i586-pc-linux-gnu NO_ASM_X=1 CC_X=clang-3.6 CXX_X=clang++-3.6 MODE_X=DEBUG CRYPTO_X=ring
+      language: cpp
       os: linux
       addons:
         apt:
@@ -369,11 +452,13 @@ matrix:
             - g++-multilib
             - gcc-multilib
             - libc6-dev-i386
+            - yasm
           sources:
             - llvm-toolchain-precise-3.6
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=i586-pc-linux-gnu NO_ASM=NO_ASM=1 USE_CC=clang-3.6 USE_CXX=clang++-3.6 CRYPTO=ring CMAKE_BUILD_TYPE=RELWITHDEBINFO
+    - env: TARGET_X=i586-pc-linux-gnu NO_ASM_X=1 CC_X=clang-3.6 CXX_X=clang++-3.6 MODE_X=RELWITHDEBINFO CRYPTO_X=ring
+      language: cpp
       os: linux
       addons:
         apt:
@@ -382,11 +467,13 @@ matrix:
             - g++-multilib
             - gcc-multilib
             - libc6-dev-i386
+            - yasm
           sources:
             - llvm-toolchain-precise-3.6
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=i586-pc-linux-gnu NO_ASM=NO_ASM=1 USE_CC=gcc-4.8 USE_CXX=g++-4.8 CRYPTO=ring CMAKE_BUILD_TYPE=DEBUG
+    - env: TARGET_X=i586-pc-linux-gnu NO_ASM_X=1 CC_X=gcc-4.8 CXX_X=g++-4.8 MODE_X=DEBUG CRYPTO_X=ring
+      language: cpp
       os: linux
       addons:
         apt:
@@ -396,10 +483,12 @@ matrix:
             - gcc-4.8
             - gcc-4.8-multilib
             - linux-libc-dev:i386
+            - yasm
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=i586-pc-linux-gnu NO_ASM=NO_ASM=1 USE_CC=gcc-4.8 USE_CXX=g++-4.8 CRYPTO=ring CMAKE_BUILD_TYPE=RELWITHDEBINFO
+    - env: TARGET_X=i586-pc-linux-gnu NO_ASM_X=1 CC_X=gcc-4.8 CXX_X=g++-4.8 MODE_X=RELWITHDEBINFO CRYPTO_X=ring
+      language: cpp
       os: linux
       addons:
         apt:
@@ -409,10 +498,12 @@ matrix:
             - gcc-4.8
             - gcc-4.8-multilib
             - linux-libc-dev:i386
+            - yasm
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=i586-pc-linux-gnu NO_ASM=NO_ASM=1 USE_CC=clang-3.5 USE_CXX=clang++-3.5 CRYPTO=ring CMAKE_BUILD_TYPE=DEBUG
+    - env: TARGET_X=i586-pc-linux-gnu NO_ASM_X=1 CC_X=clang-3.5 CXX_X=clang++-3.5 MODE_X=DEBUG CRYPTO_X=ring
+      language: cpp
       os: linux
       addons:
         apt:
@@ -421,11 +512,13 @@ matrix:
             - g++-multilib
             - gcc-multilib
             - libc6-dev-i386
+            - yasm
           sources:
             - llvm-toolchain-precise-3.5
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=i586-pc-linux-gnu NO_ASM=NO_ASM=1 USE_CC=clang-3.5 USE_CXX=clang++-3.5 CRYPTO=ring CMAKE_BUILD_TYPE=RELWITHDEBINFO
+    - env: TARGET_X=i586-pc-linux-gnu NO_ASM_X=1 CC_X=clang-3.5 CXX_X=clang++-3.5 MODE_X=RELWITHDEBINFO CRYPTO_X=ring
+      language: cpp
       os: linux
       addons:
         apt:
@@ -434,11 +527,13 @@ matrix:
             - g++-multilib
             - gcc-multilib
             - libc6-dev-i386
+            - yasm
           sources:
             - llvm-toolchain-precise-3.5
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=i586-pc-linux-gnu NO_ASM=NO_ASM=1 USE_CC=clang USE_CXX=clang++ CRYPTO=ring CMAKE_BUILD_TYPE=DEBUG
+    - env: TARGET_X=i586-pc-linux-gnu NO_ASM_X=1 CC_X=clang CXX_X=clang++ MODE_X=DEBUG CRYPTO_X=ring
+      language: cpp
       os: linux
       addons:
         apt:
@@ -446,10 +541,12 @@ matrix:
             - g++-multilib
             - gcc-multilib
             - libc6-dev-i386
+            - yasm
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=i586-pc-linux-gnu NO_ASM=NO_ASM=1 USE_CC=clang USE_CXX=clang++ CRYPTO=ring CMAKE_BUILD_TYPE=RELWITHDEBINFO
+    - env: TARGET_X=i586-pc-linux-gnu NO_ASM_X=1 CC_X=clang CXX_X=clang++ MODE_X=RELWITHDEBINFO CRYPTO_X=ring
+      language: cpp
       os: linux
       addons:
         apt:
@@ -457,10 +554,12 @@ matrix:
             - g++-multilib
             - gcc-multilib
             - libc6-dev-i386
+            - yasm
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=i586-pc-linux-gnu NO_ASM=NO_ASM=1 USE_CC=gcc-5 USE_CXX=g++-5 CRYPTO=ring CMAKE_BUILD_TYPE=DEBUG
+    - env: TARGET_X=i586-pc-linux-gnu NO_ASM_X=1 CC_X=gcc-5 CXX_X=g++-5 MODE_X=DEBUG CRYPTO_X=ring
+      language: cpp
       os: linux
       addons:
         apt:
@@ -470,10 +569,12 @@ matrix:
             - gcc-5
             - gcc-5-multilib
             - linux-libc-dev:i386
+            - yasm
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=i586-pc-linux-gnu NO_ASM=NO_ASM=1 USE_CC=gcc-5 USE_CXX=g++-5 CRYPTO=ring CMAKE_BUILD_TYPE=RELWITHDEBINFO
+    - env: TARGET_X=i586-pc-linux-gnu NO_ASM_X=1 CC_X=gcc-5 CXX_X=g++-5 MODE_X=RELWITHDEBINFO CRYPTO_X=ring
+      language: cpp
       os: linux
       addons:
         apt:
@@ -483,128 +584,164 @@ matrix:
             - gcc-5
             - gcc-5-multilib
             - linux-libc-dev:i386
+            - yasm
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=x86_64-apple-darwin-macho USE_CC=clang USE_CXX=clang++ CRYPTO=openssl CMAKE_BUILD_TYPE=DEBUG
+    - env: TARGET_X=x86_64-apple-darwin CC_X=clang CXX_X=clang++ MODE_X=DEBUG CRYPTO_X=openssl
+      language: cpp
       os: osx
 
-    - env: TARGET=x86_64-apple-darwin-macho USE_CC=clang USE_CXX=clang++ CRYPTO=openssl CMAKE_BUILD_TYPE=RELWITHDEBINFO
+    - env: TARGET_X=x86_64-apple-darwin CC_X=clang CXX_X=clang++ MODE_X=RELWITHDEBINFO CRYPTO_X=openssl
+      language: cpp
       os: osx
 
-    - env: TARGET=i586-apple-darwin-macho USE_CC=clang USE_CXX=clang++ CRYPTO=openssl CMAKE_BUILD_TYPE=DEBUG
+    - env: TARGET_X=i586-apple-darwin CC_X=clang CXX_X=clang++ MODE_X=DEBUG CRYPTO_X=openssl
+      language: cpp
       os: osx
 
-    - env: TARGET=i586-apple-darwin-macho USE_CC=clang USE_CXX=clang++ CRYPTO=openssl CMAKE_BUILD_TYPE=RELWITHDEBINFO
+    - env: TARGET_X=i586-apple-darwin CC_X=clang CXX_X=clang++ MODE_X=RELWITHDEBINFO CRYPTO_X=openssl
+      language: cpp
       os: osx
 
-    - env: TARGET=x86_64-pc-linux-gnu USE_CC=clang-3.6 USE_CXX=clang++-3.6 CRYPTO=openssl CMAKE_BUILD_TYPE=DEBUG
+    - env: TARGET_X=x86_64-pc-linux-gnu CC_X=clang-3.6 CXX_X=clang++-3.6 MODE_X=DEBUG CRYPTO_X=openssl
+      language: cpp
       os: linux
       addons:
         apt:
           packages:
             - clang-3.6
+            - yasm
           sources:
             - llvm-toolchain-precise-3.6
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=x86_64-pc-linux-gnu USE_CC=clang-3.6 USE_CXX=clang++-3.6 CRYPTO=openssl CMAKE_BUILD_TYPE=RELWITHDEBINFO
+    - env: TARGET_X=x86_64-pc-linux-gnu CC_X=clang-3.6 CXX_X=clang++-3.6 MODE_X=RELWITHDEBINFO CRYPTO_X=openssl
+      language: cpp
       os: linux
       addons:
         apt:
           packages:
             - clang-3.6
+            - yasm
           sources:
             - llvm-toolchain-precise-3.6
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=x86_64-pc-linux-gnu USE_CC=gcc-4.8 USE_CXX=g++-4.8 CRYPTO=openssl CMAKE_BUILD_TYPE=DEBUG
+    - env: TARGET_X=x86_64-pc-linux-gnu CC_X=gcc-4.8 CXX_X=g++-4.8 MODE_X=DEBUG CRYPTO_X=openssl
+      language: cpp
       os: linux
       addons:
         apt:
           packages:
             - g++-4.8
             - gcc-4.8
+            - yasm
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=x86_64-pc-linux-gnu USE_CC=gcc-4.8 USE_CXX=g++-4.8 CRYPTO=openssl CMAKE_BUILD_TYPE=RELWITHDEBINFO
+    - env: TARGET_X=x86_64-pc-linux-gnu CC_X=gcc-4.8 CXX_X=g++-4.8 MODE_X=RELWITHDEBINFO CRYPTO_X=openssl
+      language: cpp
       os: linux
       addons:
         apt:
           packages:
             - g++-4.8
             - gcc-4.8
+            - yasm
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=x86_64-pc-linux-gnu USE_CC=clang-3.5 USE_CXX=clang++-3.5 CRYPTO=openssl CMAKE_BUILD_TYPE=DEBUG
+    - env: TARGET_X=x86_64-pc-linux-gnu CC_X=clang-3.5 CXX_X=clang++-3.5 MODE_X=DEBUG CRYPTO_X=openssl
+      language: cpp
       os: linux
       addons:
         apt:
           packages:
             - clang-3.5
+            - yasm
           sources:
             - llvm-toolchain-precise-3.5
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=x86_64-pc-linux-gnu USE_CC=clang-3.5 USE_CXX=clang++-3.5 CRYPTO=openssl CMAKE_BUILD_TYPE=RELWITHDEBINFO
+    - env: TARGET_X=x86_64-pc-linux-gnu CC_X=clang-3.5 CXX_X=clang++-3.5 MODE_X=RELWITHDEBINFO CRYPTO_X=openssl
+      language: cpp
       os: linux
       addons:
         apt:
           packages:
             - clang-3.5
+            - yasm
           sources:
             - llvm-toolchain-precise-3.5
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=x86_64-pc-linux-gnu USE_CC=clang USE_CXX=clang++ CRYPTO=openssl CMAKE_BUILD_TYPE=DEBUG
+    - env: TARGET_X=x86_64-pc-linux-gnu CC_X=clang CXX_X=clang++ MODE_X=DEBUG CRYPTO_X=openssl
+      language: cpp
       os: linux
+      addons:
+        apt:
+          packages:
+            - yasm
 
-    - env: TARGET=x86_64-pc-linux-gnu USE_CC=clang USE_CXX=clang++ CRYPTO=openssl CMAKE_BUILD_TYPE=RELWITHDEBINFO
+    - env: TARGET_X=x86_64-pc-linux-gnu CC_X=clang CXX_X=clang++ MODE_X=RELWITHDEBINFO CRYPTO_X=openssl
+      language: cpp
       os: linux
+      addons:
+        apt:
+          packages:
+            - yasm
 
-    - env: TARGET=x86_64-pc-linux-gnu USE_CC=gcc-5 USE_CXX=g++-5 CRYPTO=openssl CMAKE_BUILD_TYPE=DEBUG
+    - env: TARGET_X=x86_64-pc-linux-gnu CC_X=gcc-5 CXX_X=g++-5 MODE_X=DEBUG CRYPTO_X=openssl
+      language: cpp
       os: linux
       addons:
         apt:
           packages:
             - g++-5
             - gcc-5
+            - yasm
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=x86_64-pc-linux-gnu USE_CC=gcc-5 USE_CXX=g++-5 CRYPTO=openssl CMAKE_BUILD_TYPE=RELWITHDEBINFO
+    - env: TARGET_X=x86_64-pc-linux-gnu CC_X=gcc-5 CXX_X=g++-5 MODE_X=RELWITHDEBINFO CRYPTO_X=openssl
+      language: cpp
       os: linux
       addons:
         apt:
           packages:
             - g++-5
             - gcc-5
+            - yasm
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=x86_64-pc-linux-gnu USE_CC=gcc-4.9 USE_CXX=g++-4.9 CRYPTO=openssl CMAKE_BUILD_TYPE=DEBUG
+    - env: TARGET_X=x86_64-pc-linux-gnu CC_X=gcc-4.9 CXX_X=g++-4.9 MODE_X=DEBUG CRYPTO_X=openssl
+      language: cpp
       os: linux
       addons:
         apt:
           packages:
             - g++-4.9
             - gcc-4.9
+            - yasm
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=x86_64-pc-linux-gnu USE_CC=gcc-4.9 USE_CXX=g++-4.9 CRYPTO=openssl CMAKE_BUILD_TYPE=RELWITHDEBINFO
+    - env: TARGET_X=x86_64-pc-linux-gnu CC_X=gcc-4.9 CXX_X=g++-4.9 MODE_X=RELWITHDEBINFO CRYPTO_X=openssl
+      language: cpp
       os: linux
       addons:
         apt:
           packages:
             - g++-4.9
             - gcc-4.9
+            - yasm
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=i586-pc-linux-gnu USE_CC=clang-3.6 USE_CXX=clang++-3.6 CRYPTO=openssl CMAKE_BUILD_TYPE=DEBUG
+    - env: TARGET_X=i586-pc-linux-gnu CC_X=clang-3.6 CXX_X=clang++-3.6 MODE_X=DEBUG CRYPTO_X=openssl
+      language: cpp
       os: linux
       addons:
         apt:
@@ -613,11 +750,13 @@ matrix:
             - g++-multilib
             - gcc-multilib
             - libc6-dev-i386
+            - yasm
           sources:
             - llvm-toolchain-precise-3.6
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=i586-pc-linux-gnu USE_CC=clang-3.6 USE_CXX=clang++-3.6 CRYPTO=openssl CMAKE_BUILD_TYPE=RELWITHDEBINFO
+    - env: TARGET_X=i586-pc-linux-gnu CC_X=clang-3.6 CXX_X=clang++-3.6 MODE_X=RELWITHDEBINFO CRYPTO_X=openssl
+      language: cpp
       os: linux
       addons:
         apt:
@@ -626,11 +765,13 @@ matrix:
             - g++-multilib
             - gcc-multilib
             - libc6-dev-i386
+            - yasm
           sources:
             - llvm-toolchain-precise-3.6
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=i586-pc-linux-gnu USE_CC=gcc-4.8 USE_CXX=g++-4.8 CRYPTO=openssl CMAKE_BUILD_TYPE=DEBUG
+    - env: TARGET_X=i586-pc-linux-gnu CC_X=gcc-4.8 CXX_X=g++-4.8 MODE_X=DEBUG CRYPTO_X=openssl
+      language: cpp
       os: linux
       addons:
         apt:
@@ -640,10 +781,12 @@ matrix:
             - gcc-4.8
             - gcc-4.8-multilib
             - linux-libc-dev:i386
+            - yasm
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=i586-pc-linux-gnu USE_CC=gcc-4.8 USE_CXX=g++-4.8 CRYPTO=openssl CMAKE_BUILD_TYPE=RELWITHDEBINFO
+    - env: TARGET_X=i586-pc-linux-gnu CC_X=gcc-4.8 CXX_X=g++-4.8 MODE_X=RELWITHDEBINFO CRYPTO_X=openssl
+      language: cpp
       os: linux
       addons:
         apt:
@@ -653,10 +796,12 @@ matrix:
             - gcc-4.8
             - gcc-4.8-multilib
             - linux-libc-dev:i386
+            - yasm
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=i586-pc-linux-gnu USE_CC=clang-3.5 USE_CXX=clang++-3.5 CRYPTO=openssl CMAKE_BUILD_TYPE=DEBUG
+    - env: TARGET_X=i586-pc-linux-gnu CC_X=clang-3.5 CXX_X=clang++-3.5 MODE_X=DEBUG CRYPTO_X=openssl
+      language: cpp
       os: linux
       addons:
         apt:
@@ -665,11 +810,13 @@ matrix:
             - g++-multilib
             - gcc-multilib
             - libc6-dev-i386
+            - yasm
           sources:
             - llvm-toolchain-precise-3.5
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=i586-pc-linux-gnu USE_CC=clang-3.5 USE_CXX=clang++-3.5 CRYPTO=openssl CMAKE_BUILD_TYPE=RELWITHDEBINFO
+    - env: TARGET_X=i586-pc-linux-gnu CC_X=clang-3.5 CXX_X=clang++-3.5 MODE_X=RELWITHDEBINFO CRYPTO_X=openssl
+      language: cpp
       os: linux
       addons:
         apt:
@@ -678,11 +825,13 @@ matrix:
             - g++-multilib
             - gcc-multilib
             - libc6-dev-i386
+            - yasm
           sources:
             - llvm-toolchain-precise-3.5
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=i586-pc-linux-gnu USE_CC=clang USE_CXX=clang++ CRYPTO=openssl CMAKE_BUILD_TYPE=DEBUG
+    - env: TARGET_X=i586-pc-linux-gnu CC_X=clang CXX_X=clang++ MODE_X=DEBUG CRYPTO_X=openssl
+      language: cpp
       os: linux
       addons:
         apt:
@@ -690,10 +839,12 @@ matrix:
             - g++-multilib
             - gcc-multilib
             - libc6-dev-i386
+            - yasm
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=i586-pc-linux-gnu USE_CC=clang USE_CXX=clang++ CRYPTO=openssl CMAKE_BUILD_TYPE=RELWITHDEBINFO
+    - env: TARGET_X=i586-pc-linux-gnu CC_X=clang CXX_X=clang++ MODE_X=RELWITHDEBINFO CRYPTO_X=openssl
+      language: cpp
       os: linux
       addons:
         apt:
@@ -701,10 +852,12 @@ matrix:
             - g++-multilib
             - gcc-multilib
             - libc6-dev-i386
+            - yasm
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=i586-pc-linux-gnu USE_CC=gcc-5 USE_CXX=g++-5 CRYPTO=openssl CMAKE_BUILD_TYPE=DEBUG
+    - env: TARGET_X=i586-pc-linux-gnu CC_X=gcc-5 CXX_X=g++-5 MODE_X=DEBUG CRYPTO_X=openssl
+      language: cpp
       os: linux
       addons:
         apt:
@@ -714,10 +867,12 @@ matrix:
             - gcc-5
             - gcc-5-multilib
             - linux-libc-dev:i386
+            - yasm
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=i586-pc-linux-gnu USE_CC=gcc-5 USE_CXX=g++-5 CRYPTO=openssl CMAKE_BUILD_TYPE=RELWITHDEBINFO
+    - env: TARGET_X=i586-pc-linux-gnu CC_X=gcc-5 CXX_X=g++-5 MODE_X=RELWITHDEBINFO CRYPTO_X=openssl
+      language: cpp
       os: linux
       addons:
         apt:
@@ -727,116 +882,148 @@ matrix:
             - gcc-5
             - gcc-5-multilib
             - linux-libc-dev:i386
+            - yasm
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=x86_64-pc-linux-gnu NO_ASM=NO_ASM=1 USE_CC=clang-3.6 USE_CXX=clang++-3.6 CRYPTO=openssl CMAKE_BUILD_TYPE=DEBUG
+    - env: TARGET_X=x86_64-pc-linux-gnu NO_ASM_X=1 CC_X=clang-3.6 CXX_X=clang++-3.6 MODE_X=DEBUG CRYPTO_X=openssl
+      language: cpp
       os: linux
       addons:
         apt:
           packages:
             - clang-3.6
+            - yasm
           sources:
             - llvm-toolchain-precise-3.6
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=x86_64-pc-linux-gnu NO_ASM=NO_ASM=1 USE_CC=clang-3.6 USE_CXX=clang++-3.6 CRYPTO=openssl CMAKE_BUILD_TYPE=RELWITHDEBINFO
+    - env: TARGET_X=x86_64-pc-linux-gnu NO_ASM_X=1 CC_X=clang-3.6 CXX_X=clang++-3.6 MODE_X=RELWITHDEBINFO CRYPTO_X=openssl
+      language: cpp
       os: linux
       addons:
         apt:
           packages:
             - clang-3.6
+            - yasm
           sources:
             - llvm-toolchain-precise-3.6
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=x86_64-pc-linux-gnu NO_ASM=NO_ASM=1 USE_CC=gcc-4.8 USE_CXX=g++-4.8 CRYPTO=openssl CMAKE_BUILD_TYPE=DEBUG
+    - env: TARGET_X=x86_64-pc-linux-gnu NO_ASM_X=1 CC_X=gcc-4.8 CXX_X=g++-4.8 MODE_X=DEBUG CRYPTO_X=openssl
+      language: cpp
       os: linux
       addons:
         apt:
           packages:
             - g++-4.8
             - gcc-4.8
+            - yasm
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=x86_64-pc-linux-gnu NO_ASM=NO_ASM=1 USE_CC=gcc-4.8 USE_CXX=g++-4.8 CRYPTO=openssl CMAKE_BUILD_TYPE=RELWITHDEBINFO
+    - env: TARGET_X=x86_64-pc-linux-gnu NO_ASM_X=1 CC_X=gcc-4.8 CXX_X=g++-4.8 MODE_X=RELWITHDEBINFO CRYPTO_X=openssl
+      language: cpp
       os: linux
       addons:
         apt:
           packages:
             - g++-4.8
             - gcc-4.8
+            - yasm
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=x86_64-pc-linux-gnu NO_ASM=NO_ASM=1 USE_CC=clang-3.5 USE_CXX=clang++-3.5 CRYPTO=openssl CMAKE_BUILD_TYPE=DEBUG
+    - env: TARGET_X=x86_64-pc-linux-gnu NO_ASM_X=1 CC_X=clang-3.5 CXX_X=clang++-3.5 MODE_X=DEBUG CRYPTO_X=openssl
+      language: cpp
       os: linux
       addons:
         apt:
           packages:
             - clang-3.5
+            - yasm
           sources:
             - llvm-toolchain-precise-3.5
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=x86_64-pc-linux-gnu NO_ASM=NO_ASM=1 USE_CC=clang-3.5 USE_CXX=clang++-3.5 CRYPTO=openssl CMAKE_BUILD_TYPE=RELWITHDEBINFO
+    - env: TARGET_X=x86_64-pc-linux-gnu NO_ASM_X=1 CC_X=clang-3.5 CXX_X=clang++-3.5 MODE_X=RELWITHDEBINFO CRYPTO_X=openssl
+      language: cpp
       os: linux
       addons:
         apt:
           packages:
             - clang-3.5
+            - yasm
           sources:
             - llvm-toolchain-precise-3.5
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=x86_64-pc-linux-gnu NO_ASM=NO_ASM=1 USE_CC=clang USE_CXX=clang++ CRYPTO=openssl CMAKE_BUILD_TYPE=DEBUG
+    - env: TARGET_X=x86_64-pc-linux-gnu NO_ASM_X=1 CC_X=clang CXX_X=clang++ MODE_X=DEBUG CRYPTO_X=openssl
+      language: cpp
       os: linux
+      addons:
+        apt:
+          packages:
+            - yasm
 
-    - env: TARGET=x86_64-pc-linux-gnu NO_ASM=NO_ASM=1 USE_CC=clang USE_CXX=clang++ CRYPTO=openssl CMAKE_BUILD_TYPE=RELWITHDEBINFO
+    - env: TARGET_X=x86_64-pc-linux-gnu NO_ASM_X=1 CC_X=clang CXX_X=clang++ MODE_X=RELWITHDEBINFO CRYPTO_X=openssl
+      language: cpp
       os: linux
+      addons:
+        apt:
+          packages:
+            - yasm
 
-    - env: TARGET=x86_64-pc-linux-gnu NO_ASM=NO_ASM=1 USE_CC=gcc-5 USE_CXX=g++-5 CRYPTO=openssl CMAKE_BUILD_TYPE=DEBUG
+    - env: TARGET_X=x86_64-pc-linux-gnu NO_ASM_X=1 CC_X=gcc-5 CXX_X=g++-5 MODE_X=DEBUG CRYPTO_X=openssl
+      language: cpp
       os: linux
       addons:
         apt:
           packages:
             - g++-5
             - gcc-5
+            - yasm
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=x86_64-pc-linux-gnu NO_ASM=NO_ASM=1 USE_CC=gcc-5 USE_CXX=g++-5 CRYPTO=openssl CMAKE_BUILD_TYPE=RELWITHDEBINFO
+    - env: TARGET_X=x86_64-pc-linux-gnu NO_ASM_X=1 CC_X=gcc-5 CXX_X=g++-5 MODE_X=RELWITHDEBINFO CRYPTO_X=openssl
+      language: cpp
       os: linux
       addons:
         apt:
           packages:
             - g++-5
             - gcc-5
+            - yasm
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=x86_64-pc-linux-gnu NO_ASM=NO_ASM=1 USE_CC=gcc-4.9 USE_CXX=g++-4.9 CRYPTO=openssl CMAKE_BUILD_TYPE=DEBUG
+    - env: TARGET_X=x86_64-pc-linux-gnu NO_ASM_X=1 CC_X=gcc-4.9 CXX_X=g++-4.9 MODE_X=DEBUG CRYPTO_X=openssl
+      language: cpp
       os: linux
       addons:
         apt:
           packages:
             - g++-4.9
             - gcc-4.9
+            - yasm
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=x86_64-pc-linux-gnu NO_ASM=NO_ASM=1 USE_CC=gcc-4.9 USE_CXX=g++-4.9 CRYPTO=openssl CMAKE_BUILD_TYPE=RELWITHDEBINFO
+    - env: TARGET_X=x86_64-pc-linux-gnu NO_ASM_X=1 CC_X=gcc-4.9 CXX_X=g++-4.9 MODE_X=RELWITHDEBINFO CRYPTO_X=openssl
+      language: cpp
       os: linux
       addons:
         apt:
           packages:
             - g++-4.9
             - gcc-4.9
+            - yasm
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=i586-pc-linux-gnu NO_ASM=NO_ASM=1 USE_CC=clang-3.6 USE_CXX=clang++-3.6 CRYPTO=openssl CMAKE_BUILD_TYPE=DEBUG
+    - env: TARGET_X=i586-pc-linux-gnu NO_ASM_X=1 CC_X=clang-3.6 CXX_X=clang++-3.6 MODE_X=DEBUG CRYPTO_X=openssl
+      language: cpp
       os: linux
       addons:
         apt:
@@ -845,11 +1032,13 @@ matrix:
             - g++-multilib
             - gcc-multilib
             - libc6-dev-i386
+            - yasm
           sources:
             - llvm-toolchain-precise-3.6
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=i586-pc-linux-gnu NO_ASM=NO_ASM=1 USE_CC=clang-3.6 USE_CXX=clang++-3.6 CRYPTO=openssl CMAKE_BUILD_TYPE=RELWITHDEBINFO
+    - env: TARGET_X=i586-pc-linux-gnu NO_ASM_X=1 CC_X=clang-3.6 CXX_X=clang++-3.6 MODE_X=RELWITHDEBINFO CRYPTO_X=openssl
+      language: cpp
       os: linux
       addons:
         apt:
@@ -858,11 +1047,13 @@ matrix:
             - g++-multilib
             - gcc-multilib
             - libc6-dev-i386
+            - yasm
           sources:
             - llvm-toolchain-precise-3.6
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=i586-pc-linux-gnu NO_ASM=NO_ASM=1 USE_CC=gcc-4.8 USE_CXX=g++-4.8 CRYPTO=openssl CMAKE_BUILD_TYPE=DEBUG
+    - env: TARGET_X=i586-pc-linux-gnu NO_ASM_X=1 CC_X=gcc-4.8 CXX_X=g++-4.8 MODE_X=DEBUG CRYPTO_X=openssl
+      language: cpp
       os: linux
       addons:
         apt:
@@ -872,10 +1063,12 @@ matrix:
             - gcc-4.8
             - gcc-4.8-multilib
             - linux-libc-dev:i386
+            - yasm
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=i586-pc-linux-gnu NO_ASM=NO_ASM=1 USE_CC=gcc-4.8 USE_CXX=g++-4.8 CRYPTO=openssl CMAKE_BUILD_TYPE=RELWITHDEBINFO
+    - env: TARGET_X=i586-pc-linux-gnu NO_ASM_X=1 CC_X=gcc-4.8 CXX_X=g++-4.8 MODE_X=RELWITHDEBINFO CRYPTO_X=openssl
+      language: cpp
       os: linux
       addons:
         apt:
@@ -885,10 +1078,12 @@ matrix:
             - gcc-4.8
             - gcc-4.8-multilib
             - linux-libc-dev:i386
+            - yasm
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=i586-pc-linux-gnu NO_ASM=NO_ASM=1 USE_CC=clang-3.5 USE_CXX=clang++-3.5 CRYPTO=openssl CMAKE_BUILD_TYPE=DEBUG
+    - env: TARGET_X=i586-pc-linux-gnu NO_ASM_X=1 CC_X=clang-3.5 CXX_X=clang++-3.5 MODE_X=DEBUG CRYPTO_X=openssl
+      language: cpp
       os: linux
       addons:
         apt:
@@ -897,11 +1092,13 @@ matrix:
             - g++-multilib
             - gcc-multilib
             - libc6-dev-i386
+            - yasm
           sources:
             - llvm-toolchain-precise-3.5
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=i586-pc-linux-gnu NO_ASM=NO_ASM=1 USE_CC=clang-3.5 USE_CXX=clang++-3.5 CRYPTO=openssl CMAKE_BUILD_TYPE=RELWITHDEBINFO
+    - env: TARGET_X=i586-pc-linux-gnu NO_ASM_X=1 CC_X=clang-3.5 CXX_X=clang++-3.5 MODE_X=RELWITHDEBINFO CRYPTO_X=openssl
+      language: cpp
       os: linux
       addons:
         apt:
@@ -910,11 +1107,13 @@ matrix:
             - g++-multilib
             - gcc-multilib
             - libc6-dev-i386
+            - yasm
           sources:
             - llvm-toolchain-precise-3.5
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=i586-pc-linux-gnu NO_ASM=NO_ASM=1 USE_CC=clang USE_CXX=clang++ CRYPTO=openssl CMAKE_BUILD_TYPE=DEBUG
+    - env: TARGET_X=i586-pc-linux-gnu NO_ASM_X=1 CC_X=clang CXX_X=clang++ MODE_X=DEBUG CRYPTO_X=openssl
+      language: cpp
       os: linux
       addons:
         apt:
@@ -922,10 +1121,12 @@ matrix:
             - g++-multilib
             - gcc-multilib
             - libc6-dev-i386
+            - yasm
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=i586-pc-linux-gnu NO_ASM=NO_ASM=1 USE_CC=clang USE_CXX=clang++ CRYPTO=openssl CMAKE_BUILD_TYPE=RELWITHDEBINFO
+    - env: TARGET_X=i586-pc-linux-gnu NO_ASM_X=1 CC_X=clang CXX_X=clang++ MODE_X=RELWITHDEBINFO CRYPTO_X=openssl
+      language: cpp
       os: linux
       addons:
         apt:
@@ -933,10 +1134,12 @@ matrix:
             - g++-multilib
             - gcc-multilib
             - libc6-dev-i386
+            - yasm
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=i586-pc-linux-gnu NO_ASM=NO_ASM=1 USE_CC=gcc-5 USE_CXX=g++-5 CRYPTO=openssl CMAKE_BUILD_TYPE=DEBUG
+    - env: TARGET_X=i586-pc-linux-gnu NO_ASM_X=1 CC_X=gcc-5 CXX_X=g++-5 MODE_X=DEBUG CRYPTO_X=openssl
+      language: cpp
       os: linux
       addons:
         apt:
@@ -946,10 +1149,12 @@ matrix:
             - gcc-5
             - gcc-5-multilib
             - linux-libc-dev:i386
+            - yasm
           sources:
             - ubuntu-toolchain-r-test
 
-    - env: TARGET=i586-pc-linux-gnu NO_ASM=NO_ASM=1 USE_CC=gcc-5 USE_CXX=g++-5 CRYPTO=openssl CMAKE_BUILD_TYPE=RELWITHDEBINFO
+    - env: TARGET_X=i586-pc-linux-gnu NO_ASM_X=1 CC_X=gcc-5 CXX_X=g++-5 MODE_X=RELWITHDEBINFO CRYPTO_X=openssl
+      language: cpp
       os: linux
       addons:
         apt:
@@ -959,50 +1164,11 @@ matrix:
             - gcc-5
             - gcc-5-multilib
             - linux-libc-dev:i386
+            - yasm
           sources:
             - ubuntu-toolchain-r-test
 
     # END GENERATED
 
-install:
-  - |
-    if [[ "$GCC_VERSION" != "" ]]
-    then export CC="gcc-$GCC_VERSION" CXX="g++-$GCC_VERSION"
-    fi
-
-  - |
-    if [[ "$CLANG_VERSION" != "" ]]
-    then export CC="clang-$CLANG_VERSION" CXX="clang++-$CLANG_VERSION"
-    fi
-
-  # clang 3.4 is the default version of clang in Travis CI.
-  - if [[ "$CLANG_VERSION" == "3.4" ]]; then export CC=clang CXX=clang++; fi
-
-  - |
-    if [[ "$CRYPTO" == "openssl" ]]
-    then git clone -b OpenSSL_1_0_2-stable --depth 1 --single-branch \
-                   https://github.com/openssl/openssl build/openssl
-    else git clone -b wip --depth 1 --single-branch \
-                   https://github.com/briansmith/ring build/ring;
-    fi
-
-  - |
-    git clone -b master --depth 1 --single-branch \
-              https://github.com/briansmith/googletest build/gtest
-
-before_script:
-  - export CC=$USE_CC CXX=$USE_CXX
-  - $CC --version
-  - $CXX --version
-  - make --version
-
-script:
-  - if [[ "$CRYPTO" == "openssl" ]]; then make openssl-configure; fi
-  - if [[ "$CRYPTO" == "openssl" ]]; then make openssl; fi
-  - make -j2
-  - make check
-  # Verify nothing was added to source directory during build.
-  - '! git clean --dry-run | grep ".*"'
-  - make -j2 clean
-  # XXX: Because we put GTest and OpenSSL into build/, we don't have a great
-  # way of testing that |make clean| deleted everything that was generated.
+install: mk/travis-install.sh
+script: mk/travis.sh

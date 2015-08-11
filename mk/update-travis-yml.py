@@ -19,6 +19,13 @@ import shutil
 
 latest_clang = "clang-3.7"
 
+languages = [
+    "cpp",
+    "rust-beta",
+    "rust-nightly",
+    "rust-stable",
+]
+
 linux_compilers = [
     # Since Travis CI limits the number of concurrent builds, we put the
     # highest-signal (most likely to break) builds first, to reduce latency
@@ -60,23 +67,19 @@ oss = [
     "linux",
 ]
 
+# The second value in each tuple is the value of the NO_ASM paramter.
 targets = {
     "osx" : [
-        ("x86_64-apple-darwin-macho", ""),
-        ("i586-apple-darwin-macho", ""),
+        ("x86_64-apple-darwin", ""),
+        ("i586-apple-darwin", ""),
     ],
     "linux" : [
         ("x86_64-pc-linux-gnu", ""),
         ("i586-pc-linux-gnu", ""),
-        ("x86_64-pc-linux-gnu", "NO_ASM=1"),
-        ("i586-pc-linux-gnu", "NO_ASM=1"),
+        ("x86_64-pc-linux-gnu", "1"),
+        ("i586-pc-linux-gnu", "1"),
     ],
 }
-
-no_asms = [
-    "",
-    "1",
-]
 
 cryptos = [
     "ring",
@@ -84,22 +87,31 @@ cryptos = [
 ]
 
 def format_entries():
-    return "\n".join([format_entry(os, target, compiler, no_asm, mode, crypto)
+    language = "cpp"
+    return "\n".join([format_entry(os, target, compiler, no_asm, language, mode,
+                                   crypto)
                       for crypto in cryptos
                       for os in oss
                       for target, no_asm in targets[os]
                       for compiler in compilers[os]
+                      # TODO: for language in languages
                       for mode in modes
                       # XXX: 32-bit GCC 4.9 does not work because Travis does
                       # not have g++-4.9-multilib whitelisted for use.
-                      if not (compiler == "gcc-4.9" and
-                              target == "i586-pc-linux-gnu")])
+                      if (not (language != "cpp" and  no_asm == "1")) and \
+                         (not (compiler == "gcc-4.9" and
+                               target == "i586-pc-linux-gnu"))])
 
-# Set |USE_CC| and |USE_CXX| instead of |CC| and |CXX| since Travis sets |CC|
-# and |CXX| to its default values *after* processing the |env:| directive here.
-# The travis |before_script| section will then |export CC=$USE_CC CXX=$USE_CXX|.
+# We use alternative names (the "_X" suffix) so that, in mk/travis.sh, we can
+# enure that we set the specific variables we want and that no relevant
+# variables are unintentially inherited into the build process. Also, we have
+# to set |USE_CC| and |USE_CXX| instead of |CC| and |CXX| since Travis sets
+# |CC| and |CXX| to their default values *after* processing the |env:|
+# directive here. Also, we keep these variable names short so that the env
+# line does not get cut off in the Travis CI UI.
 entry_template = """
-    - env: TARGET=%(target)s USE_CC=%(cc)s USE_CXX=%(cxx)s CRYPTO=%(crypto)s CMAKE_BUILD_TYPE=%(mode)s
+    - env: TARGET_X=%(target)s CC_X=%(cc)s CXX_X=%(cxx)s MODE_X=%(mode)s CRYPTO_X=%(crypto)s
+      language: %(language)s
       os: %(os)s"""
 
 entry_packages_template = """
@@ -112,8 +124,11 @@ entry_sources_template = """
           sources:
             %(sources)s"""
 
-def format_entry(os, target, compiler, no_asm, mode, crypto):
-    arch, vendor, sys, abi = target.split("-")
+def format_entry(os, target, compiler, no_asm, language, mode, crypto):
+    target_words = target.split("-")
+    arch = target_words[0]
+    vendor = target_words[1]
+    sys = target_words[2]
 
     def prefix_all(prefix, xs):
         return [prefix + x for x in xs]
@@ -135,14 +150,22 @@ def format_entry(os, target, compiler, no_asm, mode, crypto):
     cc = get_cc(sys, compiler)
     cxx = replace_cc_with_cxx(sys, compiler)
 
+    if language != "cpp":
+        lang, channel = language.split("-")
+        language = "%(lang)s\n      %(lang)s: %(channel)s" % {
+            "lang": lang,
+            "channel": channel,
+        }
+
     return template % {
             "cc" : cc,
             "cxx" : cxx,
             "crypto" : crypto,
+            "language" : language,
             "mode" : mode,
             "packages" : "\n            ".join(prefix_all("- ", packages)),
             "sources" : "\n            ".join(prefix_all("- ", sources)),
-            "target" : target + ("" if not no_asm else (" NO_ASM=" + no_asm)),
+            "target" : target + ("" if not no_asm else (" NO_ASM_X=" + no_asm)),
             "os" : os,
             }
 
@@ -173,9 +196,15 @@ def get_linux_packages_to_install(compiler, arch):
     else:
         raise ValueError("unexpected arch: %s" % arch)
 
+    packages.append("yasm")
+
     return packages
 
 def get_sources_for_package(package):
+    # Packages in the default repo.
+    if package in ["yasm"]:
+        return []
+
     ubuntu_toolchain = "ubuntu-toolchain-r-test"
     if package.startswith("clang-"):
         if package == latest_clang:

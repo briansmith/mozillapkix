@@ -33,6 +33,8 @@ LIBS += $(RING_LIB)
 CRYPTO_CPPFLAGS = $(RING_CPPFLAGS)
 CRYPTO_LIB = $(RING_LIB)
 CRYPTO_LDLIBS = $(RING_LDLIBS)
+else
+$(error CRYPTO must be set to "ring" or "openssl")
 endif
 
 TEST_ALL_OBJS = \
