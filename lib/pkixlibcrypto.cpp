@@ -67,8 +67,25 @@ DigestBufLibCrypto(Input item, DigestAlgorithm digestAlg,
   }
 }
 
-Result VerifyECDSASignedDigestLibCrypto(const SignedDigest& signedDigest,
-                                        NamedCurve curve, Input publicPoint)
+namespace {
+
+int
+MapDigestAlgorithmToNID(DigestAlgorithm digestAlgorithm)
+{
+  switch (digestAlgorithm) {
+    case DigestAlgorithm::sha512: return NID_sha512;
+    case DigestAlgorithm::sha384: return NID_sha384;
+    case DigestAlgorithm::sha256: return NID_sha256;
+    case DigestAlgorithm::sha1: return NID_sha1;
+    default: return NID_undef;
+  }
+}
+
+} // namespace
+
+Result
+VerifyECDSASignedDigestLibCrypto(const SignedDigest& signedDigest,
+                                 NamedCurve curve, Input publicPoint)
 {
   int groupNID;
   switch (curve) {
@@ -78,6 +95,23 @@ Result VerifyECDSASignedDigestLibCrypto(const SignedDigest& signedDigest,
     default:
       return Result::ERROR_UNSUPPORTED_ELLIPTIC_CURVE;
   }
+
+#if defined(OPENSSL_IS_RING)
+  int digestAlgNID = MapDigestAlgorithmToNID(signedDigest.digestAlgorithm);
+  if (digestAlgNID == NID_undef) {
+    return Result::ERROR_CERT_SIGNATURE_ALGORITHM_DISABLED;
+  }
+  if (!ECDSA_verify_signed_digest(digestAlgNID,
+                                  signedDigest.digest.UnsafeGetData(),
+                                  signedDigest.digest.GetLength(),
+                                  signedDigest.signature.UnsafeGetData(),
+                                  signedDigest.signature.GetLength(), groupNID,
+                                  publicPoint.UnsafeGetData(),
+                                  publicPoint.GetLength())) {
+    return Result::ERROR_BAD_SIGNATURE;
+  }
+
+#else
   ScopedPtr<EC_GROUP, EC_GROUP_free>
     group(EC_GROUP_new_by_curve_name(groupNID));
   if (!group) {
@@ -102,6 +136,7 @@ Result VerifyECDSASignedDigestLibCrypto(const SignedDigest& signedDigest,
                    signedDigest.signature.GetLength(), key.get()) != 1) {
     return Result::ERROR_BAD_SIGNATURE;
   }
+#endif
 
   return Success;
 }
@@ -109,12 +144,20 @@ Result VerifyECDSASignedDigestLibCrypto(const SignedDigest& signedDigest,
 Result VerifyRSAPKCS1SignedDigestLibCrypto(const SignedDigest& signedDigest,
                                            Input rsaPublicKey)
 {
-#if defined(OPENSSL_IS_BORINGSSL)
-  ScopedPtr<RSA, RSA_free>
-    key(RSA_public_key_from_bytes(rsaPublicKey.UnsafeGetData(),
-        rsaPublicKey.GetLength()));
-  if (!key.get()) {
-    return Result::ERROR_INVALID_KEY;
+  int digestAlgNID = MapDigestAlgorithmToNID(signedDigest.digestAlgorithm);
+  if (digestAlgNID == NID_undef) {
+    return Result::ERROR_CERT_SIGNATURE_ALGORITHM_DISABLED;
+  }
+
+#if defined(OPENSSL_IS_RING)
+  if (!RSA_verify_pkcs1_signed_digest(digestAlgNID,
+                                      signedDigest.digest.UnsafeGetData(),
+                                      signedDigest.digest.GetLength(),
+                                      signedDigest.signature.UnsafeGetData(),
+                                      signedDigest.signature.GetLength(),
+                                      rsaPublicKey.UnsafeGetData(),
+                                      rsaPublicKey.GetLength())) {
+    return Result::ERROR_BAD_SIGNATURE;
   }
 #else
   // OpenSSL doesn't have RSA_public_key_from_bytes so we have to do things a
@@ -145,24 +188,15 @@ Result VerifyRSAPKCS1SignedDigestLibCrypto(const SignedDigest& signedDigest,
   if (p != rsaPublicKey.UnsafeGetData() + len) {
     return Result::ERROR_INVALID_KEY;
   }
-#endif
+  key->flags &= ~RSA_FLAG_CACHE_PUBLIC; /* We're only going to use it once. */
 
-  int digestNID;
-  switch (signedDigest.digestAlgorithm) {
-    case DigestAlgorithm::sha512: digestNID = NID_sha512; break;
-    case DigestAlgorithm::sha384: digestNID = NID_sha384; break;
-    case DigestAlgorithm::sha256: digestNID = NID_sha256; break;
-    case DigestAlgorithm::sha1: digestNID = NID_sha1; break;
-    default:
-      return Result::ERROR_CERT_SIGNATURE_ALGORITHM_DISABLED;
-  }
-
-  if (RSA_verify(digestNID, signedDigest.digest.UnsafeGetData(),
+  if (RSA_verify(digestAlgNID, signedDigest.digest.UnsafeGetData(),
                  signedDigest.digest.GetLength(),
                  signedDigest.signature.UnsafeGetData(),
                  signedDigest.signature.GetLength(), key.get()) != 1) {
     return Result::ERROR_BAD_SIGNATURE;
   }
+#endif
 
   return Success;
 }
