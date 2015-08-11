@@ -1,0 +1,49 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{FF32DF72-6F80-4314-ACEE-C53215E6FB19}</ProjectGuid>
+    <ProjectName>libmozillapkix.Windows</ProjectName>
+    <TargetName>mozillapkix-core</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+  </PropertyGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="..\mk\Windows.props" />
+  </ImportGroup>
+  <PropertyGroup Label="Configuration">
+    <OutDir>$(OutRootDir)lib\</OutDir>
+  </PropertyGroup>
+  <ItemGroup>
+    <ClCompile Include="pkixbuild.cpp" />
+    <ClCompile Include="pkixcert.cpp" />
+    <ClCompile Include="pkixcheck.cpp" />
+    <ClCompile Include="pkixder.cpp" />
+    <ClCompile Include="pkixkey.cpp" />
+    <ClCompile Include="pkixlibcrypto.cpp" />
+    <ClCompile Include="pkixnames.cpp" />
+    <ClCompile Include="pkixocsp.cpp" />
+    <ClCompile Include="pkixresult.cpp" />
+    <ClCompile Include="pkixtime.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\pkix\Input.h" />
+    <ClInclude Include="..\include\pkix\pkix.h" />
+    <ClInclude Include="..\include\pkix\pkixlibcrypto.h" />
+    <ClInclude Include="..\include\pkix\pkixtypes.h" />
+    <ClInclude Include="..\include\pkix\Result.h" />
+    <ClInclude Include="..\include\pkix\Time.h" />
+    <ClInclude Include="pkixcheck.h" />
+    <ClInclude Include="pkixder.h" />
+    <ClInclude Include="pkixlibcryptointernal.h" />
+    <ClInclude Include="pkixutil.h" />
+    <ClInclude Include="ScopedPtr.h" />
+  </ItemGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);..\include;..\..\ring\include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>OPENSSL_NO_ASM;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>
