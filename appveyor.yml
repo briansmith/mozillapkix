@@ -18,8 +18,9 @@ before_build:
     - SET PATH=C:\Program Files (x86)\MSBuild\%TOOLCHAIN_VERSION%\Bin;%PATH%
     - git clone -b wip --depth 1 --single-branch https://github.com/briansmith/ring ../ring
     - git clone -b master --depth 1 --single-branch https://github.com/briansmith/googletest ../gtest
-
 build:
   project: mozillapkix.sln
   parallel: true
   verbosity: normal
+test_script:
+  - .\build\%Platform%-%Configuration%\test\mozillapkix\mozillapkix-test

@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{DD72DD34-FFF1-473C-B2EE-981364558A30}</ProjectGuid>
+    <ProjectName>gtest.Windows</ProjectName>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+  </PropertyGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="..\mk\Windows.props" />
+  </ImportGroup>
+  <PropertyGroup Label="Configuration">
+    <OutDir>$(IntRootDir)</OutDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>..\..\gtest\include;..\..\gtest;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\gtest\src\gtest-death-test.cc" />
+    <ClCompile Include="..\..\gtest\src\gtest-filepath.cc" />
+    <ClCompile Include="..\..\gtest\src\gtest-port.cc" />
+    <ClCompile Include="..\..\gtest\src\gtest-printers.cc" />
+    <ClCompile Include="..\..\gtest\src\gtest-test-part.cc" />
+    <ClCompile Include="..\..\gtest\src\gtest-typed-test.cc" />
+    <ClCompile Include="..\..\gtest\src\gtest.cc" />
+    <ClCompile Include="..\..\gtest\src\gtest_main.cc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\gtest\include\gtest\gtest-death-test.h" />
+    <ClInclude Include="..\..\gtest\include\gtest\gtest-message.h" />
+    <ClInclude Include="..\..\gtest\include\gtest\gtest-param-test.h" />
+    <ClInclude Include="..\..\gtest\include\gtest\gtest-printers.h" />
+    <ClInclude Include="..\..\gtest\include\gtest\gtest-spi.h" />
+    <ClInclude Include="..\..\gtest\include\gtest\gtest-test-part.h" />
+    <ClInclude Include="..\..\gtest\include\gtest\gtest-typed-test.h" />
+    <ClInclude Include="..\..\gtest\include\gtest\gtest.h" />
+    <ClInclude Include="..\..\gtest\include\gtest\gtest_pred_impl.h" />
+    <ClInclude Include="..\..\gtest\include\gtest\gtest_prod.h" />
+  </ItemGroup>
+  <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);..\include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>OPENSSL_NO_ASM;_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+</Project>

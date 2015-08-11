@@ -1,0 +1,69 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\..\gtest\src\gtest.cc">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\gtest\src\gtest_main.cc">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\gtest\src\gtest-death-test.cc">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\gtest\src\gtest-filepath.cc">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\gtest\src\gtest-port.cc">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\gtest\src\gtest-printers.cc">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\gtest\src\gtest-test-part.cc">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\gtest\src\gtest-typed-test.cc">
+      <Filter>src</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{f7399c8b-a292-4c93-8013-b531a577b2c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="include/gtest">
+      <UniqueIdentifier>{b1c251b0-e297-49c9-9c95-088c290c09bb}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\gtest\include\gtest\gtest.h">
+      <Filter>include/gtest</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gtest\include\gtest\gtest_pred_impl.h">
+      <Filter>include/gtest</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gtest\include\gtest\gtest_prod.h">
+      <Filter>include/gtest</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gtest\include\gtest\gtest-death-test.h">
+      <Filter>include/gtest</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gtest\include\gtest\gtest-message.h">
+      <Filter>include/gtest</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gtest\include\gtest\gtest-param-test.h">
+      <Filter>include/gtest</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gtest\include\gtest\gtest-printers.h">
+      <Filter>include/gtest</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gtest\include\gtest\gtest-spi.h">
+      <Filter>include/gtest</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gtest\include\gtest\gtest-test-part.h">
+      <Filter>include/gtest</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\gtest\include\gtest\gtest-typed-test.h">
+      <Filter>include/gtest</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
