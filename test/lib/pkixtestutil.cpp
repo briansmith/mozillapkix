@@ -240,7 +240,7 @@ Integer(long value)
 enum TimeEncoding { UTCTime = 0, GeneralizedTime = 1 };
 
 // Windows doesn't provide gmtime_r, but it provides something very similar.
-#if defined(WIN32) && !defined(_POSIX_THREAD_SAFE_FUNCTIONS)
+#if defined(_WIN32) && !defined(_POSIX_THREAD_SAFE_FUNCTIONS)
 static tm*
 gmtime_r(const time_t* t, /*out*/ tm* exploded)
 {
