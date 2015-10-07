@@ -23,7 +23,7 @@ $CXX_X --version
 make --version
 
 if [[ "$CRYPTO_X" == "ring" ]]; then
-  git clone -b wip --depth 1 --single-branch \
+  git clone -b master --depth 1 --single-branch \
             https://github.com/briansmith/ring build/ring
 elif [[ "$CRYPTO_X" == "openssl" ]]; then
   git clone -b OpenSSL_1_0_2-stable --depth 1 --single-branch \
