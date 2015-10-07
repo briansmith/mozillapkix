@@ -27,6 +27,11 @@
 
 namespace mozilla { namespace pkix {
 
+#if defined(__GNUC__)
+const Input::Result Input::OK;
+const Input::Result Input::BAD;
+#endif
+
 const char*
 MapResultToName(Result result)
 {

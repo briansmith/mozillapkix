@@ -140,7 +140,8 @@ public:
                       Result::FATAL_ERROR_LIBRARY_FAILURE);
   }
 
-  Result VerifyECDSASignedDigest(const SignedDigest&, Input) override
+  Result VerifyECDSASignedDigest(const SignedDigest&, Input, NamedCurve, Input)
+                                 override
   {
     ADD_FAILURE();
     return NotReached("VerifyECDSASignedDigest should not be called",
@@ -155,7 +156,8 @@ public:
                       Result::FATAL_ERROR_LIBRARY_FAILURE);
   }
 
-  Result VerifyRSAPKCS1SignedDigest(const SignedDigest&, Input) override
+  Result VerifyRSAPKCS1SignedDigest(const SignedDigest&, Input, Input)
+                                    override
   {
     ADD_FAILURE();
     return NotReached("VerifyRSAPKCS1SignedDigest should not be called",
@@ -190,9 +192,11 @@ class DefaultCryptoTrustDomain : public EverythingFailsByDefaultTrustDomain
   }
 
   Result VerifyECDSASignedDigest(const SignedDigest& signedDigest,
-                                 Input subjectPublicKeyInfo) override
+                                 Input subjectPublicKeyInfo, NamedCurve curve,
+                                 Input publicPoint) override
   {
-    return TestVerifyECDSASignedDigest(signedDigest, subjectPublicKeyInfo);
+    return TestVerifyECDSASignedDigest(signedDigest, subjectPublicKeyInfo,
+                                       curve, publicPoint);
   }
 
   Result CheckRSAPublicKeyModulusSizeInBits(EndEntityOrCA, unsigned int)
@@ -202,9 +206,11 @@ class DefaultCryptoTrustDomain : public EverythingFailsByDefaultTrustDomain
   }
 
   Result VerifyRSAPKCS1SignedDigest(const SignedDigest& signedDigest,
-                                    Input subjectPublicKeyInfo) override
+                                    Input subjectPublicKeyInfo,
+                                    Input rsaPublicKey) override
   {
-    return TestVerifyRSAPKCS1SignedDigest(signedDigest, subjectPublicKeyInfo);
+    return TestVerifyRSAPKCS1SignedDigest(signedDigest, subjectPublicKeyInfo,
+                                          rsaPublicKey);
   }
 
   Result CheckValidityIsAcceptable(Time, Time, EndEntityOrCA, KeyPurposeId)

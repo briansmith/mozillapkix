@@ -175,6 +175,7 @@ RSA_PKCS1()
   return TestPublicKeyAlgorithm(SimpleAlgID(rsaEncryption, NULLParam::YES));
 }
 
+#if defined(MOZILLA_PKIX_TEST_HAVE_MD2)
 // RFC 3279 Section 2.2.1
 TestSignatureAlgorithm md2WithRSAEncryption()
 {
@@ -182,6 +183,7 @@ TestSignatureAlgorithm md2WithRSAEncryption()
   return TestSignatureAlgorithm(RSA_PKCS1(), TestDigestAlgorithmID::MD2,
                                 SimpleAlgID(oidValue), false);
 }
+#endif
 
 // RFC 3279 Section 2.2.1
 TestSignatureAlgorithm md5WithRSAEncryption()

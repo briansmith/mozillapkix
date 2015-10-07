@@ -33,7 +33,7 @@ Where revisions.txt contains a list of revision numbers containing changes
 to security/pkix (and/or security/insanity, for old revisions):
 
    (cd ../firefox/mozilla-central ; \
-    hg log -M -removed -r "ancestors(.)" --template "{node}\n" \
+    hg log -M --removed -r "ancestors(.)" --template "{node}\n" \
            security/pkix security/insanity \
       | grep -v a555f10c40e553030345ced1bab3088533c5119b \
       > ../revisions.txt)

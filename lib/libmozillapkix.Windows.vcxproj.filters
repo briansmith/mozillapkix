@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="pkixbuild.cpp">
+      <Filter>lib/</Filter>
+    </ClCompile>
+    <ClCompile Include="pkixcert.cpp">
+      <Filter>lib/</Filter>
+    </ClCompile>
+    <ClCompile Include="pkixcheck.cpp">
+      <Filter>lib/</Filter>
+    </ClCompile>
+    <ClCompile Include="pkixder.cpp">
+      <Filter>lib/</Filter>
+    </ClCompile>
+    <ClCompile Include="pkixkey.cpp">
+      <Filter>lib/</Filter>
+    </ClCompile>
+    <ClCompile Include="pkixlibcrypto.cpp">
+      <Filter>lib/</Filter>
+    </ClCompile>
+    <ClCompile Include="pkixnames.cpp">
+      <Filter>lib/</Filter>
+    </ClCompile>
+    <ClCompile Include="pkixocsp.cpp">
+      <Filter>lib/</Filter>
+    </ClCompile>
+    <ClCompile Include="pkixresult.cpp">
+      <Filter>lib/</Filter>
+    </ClCompile>
+    <ClCompile Include="pkixtime.cpp">
+      <Filter>lib/</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\pkix\Input.h">
+      <Filter>include/pkix</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\pkix\pkix.h">
+      <Filter>include/pkix</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\pkix\pkixlibcrypto.h">
+      <Filter>include/pkix</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\pkix\pkixtypes.h">
+      <Filter>include/pkix</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\pkix\Result.h">
+      <Filter>include/pkix</Filter>
+    </ClInclude>
+    <ClInclude Include="..\include\pkix\Time.h">
+      <Filter>include/pkix</Filter>
+    </ClInclude>
+    <ClInclude Include="pkixcheck.h">
+      <Filter>lib/</Filter>
+    </ClInclude>
+    <ClInclude Include="pkixder.h">
+      <Filter>lib/</Filter>
+    </ClInclude>
+    <ClInclude Include="pkixlibcryptointernal.h">
+      <Filter>lib/</Filter>
+    </ClInclude>
+    <ClInclude Include="pkixutil.h">
+      <Filter>lib/</Filter>
+    </ClInclude>
+    <ClInclude Include="ScopedPtr.h">
+      <Filter>lib/</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="include/pkix">
+      <UniqueIdentifier>{294d674d-52d2-4e89-a934-0885f934201f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="lib/">
+      <UniqueIdentifier>{2302445c-f360-465b-bc81-e3d87f3a2752}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

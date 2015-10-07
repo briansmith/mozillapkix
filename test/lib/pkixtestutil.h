@@ -108,7 +108,9 @@ struct TestSignatureAlgorithm
   bool accepted;
 };
 
+#if defined(MOZILLA_PKIX_TEST_HAVE_MD2)
 TestSignatureAlgorithm md2WithRSAEncryption();
+#endif
 TestSignatureAlgorithm md5WithRSAEncryption();
 TestSignatureAlgorithm sha1WithRSAEncryption();
 TestSignatureAlgorithm sha256WithRSAEncryption();
@@ -308,9 +310,13 @@ inline void DeleteTestKeyPair(TestKeyPair* keyPair) { delete keyPair; }
 typedef ScopedPtr<TestKeyPair, DeleteTestKeyPair> ScopedTestKeyPair;
 
 Result TestVerifyECDSASignedDigest(const SignedDigest& signedDigest,
-                                   Input subjectPublicKeyInfo);
+                                   Input subjectPublicKeyInfo,
+                                   NamedCurve curve, Input publicPoint);
+
 Result TestVerifyRSAPKCS1SignedDigest(const SignedDigest& signedDigest,
-                                      Input subjectPublicKeyInfo);
+                                      Input subjectPublicKeyInfo,
+                                      Input rsaPublicKey);
+
 Result TestDigestBuf(Input item, DigestAlgorithm digestAlg,
                      /*out*/ uint8_t* digestBuf, size_t digestBufLen);
 
@@ -429,6 +435,66 @@ public:
 };
 
 ByteString CreateEncodedOCSPResponse(OCSPResponseContext& context);
+
+// Some of the tests need a dummy TrustDomain implementation purely so they
+// can construct mock CertID objects.
+class MockCertIDCreationTrustDomain final : public TrustDomain
+{
+  Result CheckRSAPublicKeyModulusSizeInBits(EndEntityOrCA, unsigned int)
+    override
+  {
+    return Success;
+  }
+
+  Result CheckECDSACurveIsAcceptable(EndEntityOrCA, NamedCurve) override
+  {
+    return Success;
+  }
+
+  Result GetCertTrust(EndEntityOrCA, const CertPolicyId&, Input,
+                      /*out*/ TrustLevel&) override
+  {
+    abort();
+  }
+
+  Result FindIssuer(Input, IssuerChecker&, Time) override { abort(); }
+  Result IsChainValid(const DERArray&, Time) override { abort(); }
+
+  Result CheckRevocation(EndEntityOrCA, const CertID&, Time, Duration,
+                         /*optional*/ const Input*, /*optional*/ const Input*)
+                         override
+  {
+    abort();
+  }
+
+  Result CheckSignatureDigestAlgorithm(DigestAlgorithm, EndEntityOrCA)
+                                       override
+  {
+    abort();
+  }
+
+  Result VerifyRSAPKCS1SignedDigest(const SignedDigest&, Input, Input) override
+  {
+    abort();
+  }
+
+  Result VerifyECDSASignedDigest(const SignedDigest&, Input, NamedCurve, Input)
+                                 override
+  {
+    abort();
+  }
+
+  Result CheckValidityIsAcceptable(Time, Time, EndEntityOrCA, KeyPurposeId)
+                                   override
+  {
+    abort();
+  }
+
+  Result DigestBuf(Input, DigestAlgorithm, /*out*/ uint8_t*, size_t) override
+  {
+    abort();
+  }
+};
 
 } } } // namespace mozilla::pkix::test
 

@@ -1,0 +1,23 @@
+build/
+ssl/test/runner/runner
+*.swp
+*.swo
+doc/*.html
+doc/doc.css
+*~
+
+# Visual Studio Junk
+.vs/
+*.opensdf
+*.psess
+*.sdf
+*.sln.docstates
+*.suo
+*.user
+*.userosscache
+*.vsp
+*.vspx
+
+# Cargo Junk
+Cargo.lock
+target/

@@ -69,7 +69,7 @@ public:
     }
     Input rootNameDERInput;
     if (rootNameDERInput.Init(rootNameDER.data(), rootNameDER.length())
-          != Success) {
+          != Input::OK) {
       abort();
     }
 
@@ -80,17 +80,25 @@ public:
     }
     Input serialNumberDERInput;
     if (serialNumberDERInput.Init(serialNumberDER.data(),
-                                  serialNumberDER.length()) != Success) {
+                                  serialNumberDER.length()) != Input::OK) {
       abort();
     }
 
     Input rootSPKIDER;
     if (rootSPKIDER.Init(rootKeyPair->subjectPublicKeyInfo.data(),
                          rootKeyPair->subjectPublicKeyInfo.length())
-          != Success) {
+          != Input::OK) {
       abort();
     }
-    endEntityCertID.reset(new (std::nothrow) CertID(rootNameDERInput, rootSPKIDER,
+    if (rootPublicKey.Init(EndEntityOrCA::MustBeCA, rootSPKIDER) != Success) {
+      abort();
+    }
+    if (rootPublicKey.ParseAndCheck(trustDomain) != Success) {
+      abort();
+    }
+
+    endEntityCertID.reset(new (std::nothrow) CertID(rootNameDERInput,
+                                                    rootPublicKey,
                                                     serialNumberDERInput));
     if (!endEntityCertID) {
       abort();
@@ -98,6 +106,8 @@ public:
   }
 
   static ScopedTestKeyPair rootKeyPair;
+  PublicKey rootPublicKey;
+
   static uint32_t rootIssuedCount;
   OCSPTestTrustDomain trustDomain;
 
@@ -140,8 +150,9 @@ class pkixocsp_VerifyEncodedResponse_WithoutResponseBytes
 protected:
   ByteString CreateEncodedOCSPErrorResponse(uint8_t status)
   {
+    PublicKey dummyKey;
     static const Input EMPTY;
-    OCSPResponseContext context(CertID(EMPTY, EMPTY, EMPTY),
+    OCSPResponseContext context(CertID(EMPTY, dummyKey, EMPTY),
                                 oneDayBeforeNow);
     context.responseStatus = status;
     context.skipResponseBytes = true;
@@ -154,7 +165,7 @@ TEST_P(pkixocsp_VerifyEncodedResponse_WithoutResponseBytes, CorrectErrorCode)
   ByteString
     responseString(CreateEncodedOCSPErrorResponse(GetParam().responseStatus));
   Input response;
-  ASSERT_EQ(Success,
+  ASSERT_EQ(Input::OK,
             response.Init(responseString.data(), responseString.length()));
   bool expired;
   ASSERT_EQ(GetParam().expectedError,
@@ -175,7 +186,7 @@ namespace {
 // Alias for nullptr to aid readability in the code below.
 static const char* byKey = nullptr;
 
-} // unnamed namespcae
+} // namespace
 
 class pkixocsp_VerifyEncodedResponse_successful
   : public pkixocsp_VerifyEncodedResponse
@@ -231,7 +242,7 @@ TEST_F(pkixocsp_VerifyEncodedResponse_successful, good_byKey)
                          oneDayBeforeNow, &oneDayAfterNow,
                          sha256WithRSAEncryption()));
   Input response;
-  ASSERT_EQ(Success,
+  ASSERT_EQ(Input::OK,
             response.Init(responseString.data(), responseString.length()));
   bool expired;
   ASSERT_EQ(Success,
@@ -250,7 +261,7 @@ TEST_F(pkixocsp_VerifyEncodedResponse_successful, good_byName)
                          oneDayBeforeNow, &oneDayAfterNow,
                          sha256WithRSAEncryption()));
   Input response;
-  ASSERT_EQ(Success,
+  ASSERT_EQ(Input::OK,
             response.Init(responseString.data(), responseString.length()));
   bool expired;
   ASSERT_EQ(Success,
@@ -269,7 +280,7 @@ TEST_F(pkixocsp_VerifyEncodedResponse_successful, good_byKey_without_nextUpdate)
                          oneDayBeforeNow, nullptr,
                          sha256WithRSAEncryption()));
   Input response;
-  ASSERT_EQ(Success,
+  ASSERT_EQ(Input::OK,
             response.Init(responseString.data(), responseString.length()));
   bool expired;
   ASSERT_EQ(Success,
@@ -288,7 +299,7 @@ TEST_F(pkixocsp_VerifyEncodedResponse_successful, revoked)
                          oneDayBeforeNow, &oneDayAfterNow,
                          sha256WithRSAEncryption()));
   Input response;
-  ASSERT_EQ(Success,
+  ASSERT_EQ(Input::OK,
             response.Init(responseString.data(), responseString.length()));
   bool expired;
   ASSERT_EQ(Result::ERROR_REVOKED_CERTIFICATE,
@@ -307,7 +318,7 @@ TEST_F(pkixocsp_VerifyEncodedResponse_successful, unknown)
                          oneDayBeforeNow, &oneDayAfterNow,
                          sha256WithRSAEncryption()));
   Input response;
-  ASSERT_EQ(Success,
+  ASSERT_EQ(Input::OK,
             response.Init(responseString.data(), responseString.length()));
   bool expired;
   ASSERT_EQ(Result::ERROR_OCSP_UNKNOWN_CERT,
@@ -327,7 +338,7 @@ TEST_F(pkixocsp_VerifyEncodedResponse_successful,
                          oneDayBeforeNow, &oneDayAfterNow,
                          md5WithRSAEncryption()));
   Input response;
-  ASSERT_EQ(Success,
+  ASSERT_EQ(Input::OK,
             response.Init(responseString.data(), responseString.length()));
   bool expired;
   ASSERT_EQ(Result::ERROR_CERT_SIGNATURE_ALGORITHM_DISABLED,
@@ -352,7 +363,7 @@ TEST_F(pkixocsp_VerifyEncodedResponse_successful, check_validThrough)
   Time validThrough(Time::uninitialized);
   {
     Input response;
-    ASSERT_EQ(Success,
+    ASSERT_EQ(Input::OK,
               response.Init(responseString.data(), responseString.length()));
     bool expired;
     ASSERT_EQ(Success,
@@ -369,7 +380,7 @@ TEST_F(pkixocsp_VerifyEncodedResponse_successful, check_validThrough)
   }
   {
     Input response;
-    ASSERT_EQ(Success,
+    ASSERT_EQ(Input::OK,
               response.Init(responseString.data(), responseString.length()));
     bool expired;
     // Given validThrough from a previous verification, this response should be
@@ -384,7 +395,7 @@ TEST_F(pkixocsp_VerifyEncodedResponse_successful, check_validThrough)
     Time noLongerValid(validThrough);
     ASSERT_EQ(Success, noLongerValid.AddSeconds(1));
     Input response;
-    ASSERT_EQ(Success,
+    ASSERT_EQ(Input::OK,
               response.Init(responseString.data(), responseString.length()));
     bool expired;
     // The verification time is now after when the response will be considered
@@ -507,7 +518,7 @@ TEST_F(pkixocsp_VerifyEncodedResponse_DelegatedResponder, good_byKey)
                          "good_indirect_byKey", OCSPResponseContext::good,
                          byKey, sha256WithRSAEncryption()));
   Input response;
-  ASSERT_EQ(Success,
+  ASSERT_EQ(Input::OK,
             response.Init(responseString.data(), responseString.length()));
   bool expired;
   ASSERT_EQ(Success,
@@ -524,7 +535,7 @@ TEST_F(pkixocsp_VerifyEncodedResponse_DelegatedResponder, good_byName)
                          "good_indirect_byName", OCSPResponseContext::good,
                          "good_indirect_byName", sha256WithRSAEncryption()));
   Input response;
-  ASSERT_EQ(Success,
+  ASSERT_EQ(Input::OK,
             response.Init(responseString.data(), responseString.length()));
   bool expired;
   ASSERT_EQ(Success,
@@ -547,7 +558,7 @@ TEST_F(pkixocsp_VerifyEncodedResponse_DelegatedResponder,
                          oneDayBeforeNow, nullptr,
                          sha256WithRSAEncryption()));
   Input response;
-  ASSERT_EQ(Success,
+  ASSERT_EQ(Input::OK,
             response.Init(responseString.data(), responseString.length()));
   bool expired;
   ASSERT_EQ(Result::ERROR_OCSP_INVALID_SIGNING_CERT,
@@ -569,7 +580,7 @@ TEST_F(pkixocsp_VerifyEncodedResponse_DelegatedResponder,
                          oneDayBeforeNow, oneDayBeforeNow, nullptr,
                          sha256WithRSAEncryption()));
   Input response;
-  ASSERT_EQ(Success,
+  ASSERT_EQ(Input::OK,
             response.Init(responseString.data(), responseString.length()));
   bool expired;
   ASSERT_EQ(Result::ERROR_OCSP_INVALID_SIGNING_CERT,
@@ -606,7 +617,7 @@ TEST_F(pkixocsp_VerifyEncodedResponse_DelegatedResponder, good_expired)
                          oneDayBeforeNow, &oneDayAfterNow,
                          sha256WithRSAEncryption(), certs));
   Input response;
-  ASSERT_EQ(Success,
+  ASSERT_EQ(Input::OK,
             response.Init(responseString.data(), responseString.length()));
   bool expired;
   ASSERT_EQ(Result::ERROR_OCSP_INVALID_SIGNING_CERT,
@@ -642,7 +653,7 @@ TEST_F(pkixocsp_VerifyEncodedResponse_DelegatedResponder, good_future)
                          oneDayBeforeNow, &oneDayAfterNow,
                          sha256WithRSAEncryption(), certs));
   Input response;
-  ASSERT_EQ(Success,
+  ASSERT_EQ(Input::OK,
             response.Init(responseString.data(), responseString.length()));
   bool expired;
   ASSERT_EQ(Result::ERROR_OCSP_INVALID_SIGNING_CERT,
@@ -660,7 +671,7 @@ TEST_F(pkixocsp_VerifyEncodedResponse_DelegatedResponder, good_no_eku)
                          OCSPResponseContext::good, byKey,
                          sha256WithRSAEncryption(), nullptr));
   Input response;
-  ASSERT_EQ(Success,
+  ASSERT_EQ(Input::OK,
             response.Init(responseString.data(), responseString.length()));
   bool expired;
   ASSERT_EQ(Result::ERROR_OCSP_INVALID_SIGNING_CERT,
@@ -681,7 +692,7 @@ TEST_F(pkixocsp_VerifyEncodedResponse_DelegatedResponder,
                         OCSPResponseContext::good, byKey,
                         sha256WithRSAEncryption(), &serverAuthEKUDER));
   Input response;
-  ASSERT_EQ(Success,
+  ASSERT_EQ(Input::OK,
             response.Init(responseString.data(), responseString.length()));
   bool expired;
   ASSERT_EQ(Result::ERROR_OCSP_INVALID_SIGNING_CERT,
@@ -706,8 +717,8 @@ TEST_F(pkixocsp_VerifyEncodedResponse_DelegatedResponder, good_tampered_eku)
                        ByteString(tlv_id_kp_OCSPSigning,
                                   sizeof(tlv_id_kp_OCSPSigning))));
   Input tamperedResponseInput;
-  ASSERT_EQ(Success, tamperedResponseInput.Init(tamperedResponse.data(),
-                                                tamperedResponse.length()));
+  ASSERT_EQ(Input::OK, tamperedResponseInput.Init(tamperedResponse.data(),
+                                                  tamperedResponse.length()));
   bool expired;
   ASSERT_EQ(Result::ERROR_OCSP_INVALID_SIGNING_CERT,
             VerifyEncodedOCSPResponse(trustDomain, *endEntityCertID, Now(),
@@ -746,7 +757,7 @@ TEST_F(pkixocsp_VerifyEncodedResponse_DelegatedResponder, good_unknown_issuer)
                          oneDayBeforeNow, &oneDayAfterNow,
                          sha256WithRSAEncryption(), certs));
   Input response;
-  ASSERT_EQ(Success,
+  ASSERT_EQ(Input::OK,
             response.Init(responseString.data(), responseString.length()));
   bool expired;
   ASSERT_EQ(Result::ERROR_OCSP_INVALID_SIGNING_CERT,
@@ -799,7 +810,7 @@ TEST_F(pkixocsp_VerifyEncodedResponse_DelegatedResponder,
                          oneDayBeforeNow, &oneDayAfterNow,
                          sha256WithRSAEncryption(), certs));
   Input response;
-  ASSERT_EQ(Success,
+  ASSERT_EQ(Input::OK,
             response.Init(responseString.data(), responseString.length()));
   bool expired;
   ASSERT_EQ(Result::ERROR_OCSP_INVALID_SIGNING_CERT,
@@ -854,7 +865,7 @@ TEST_F(pkixocsp_VerifyEncodedResponse_DelegatedResponder,
                          oneDayBeforeNow, &oneDayAfterNow,
                          sha256WithRSAEncryption(), certs));
   Input response;
-  ASSERT_EQ(Success,
+  ASSERT_EQ(Input::OK,
             response.Init(responseString.data(), responseString.length()));
   bool expired;
   ASSERT_EQ(Result::ERROR_OCSP_INVALID_SIGNING_CERT,
@@ -876,7 +887,7 @@ TEST_F(pkixocsp_VerifyEncodedResponse_DelegatedResponder,
                          OCSPResponseContext::good, byKey,
                          md5WithRSAEncryption()));
   Input response;
-  ASSERT_EQ(Success,
+  ASSERT_EQ(Input::OK,
             response.Init(responseString.data(), responseString.length()));
   bool expired;
   ASSERT_EQ(Result::ERROR_OCSP_INVALID_SIGNING_CERT,
@@ -901,7 +912,7 @@ public:
       abort();
     }
     if (response.Init(responseString.data(), responseString.length())
-          != Success) {
+          != Input::OK) {
       abort();
     }
     if (signerCertDER.length() == 0) {
@@ -931,7 +942,8 @@ public:
       EXPECT_EQ(endEntityOrCA, EndEntityOrCA::MustBeEndEntity);
       EXPECT_FALSE(certDER.empty());
       Input certDERInput;
-      EXPECT_EQ(Success, certDERInput.Init(certDER.data(), certDER.length()));
+      EXPECT_EQ(Input::OK,
+                certDERInput.Init(certDER.data(), certDER.length()));
       EXPECT_TRUE(InputsAreEqual(certDERInput, candidateCert));
       trustLevel = certTrustLevel;
       return Success;
@@ -976,7 +988,7 @@ TEST_F(pkixocsp_VerifyEncodedResponse_GetCertTrust, ActivelyDistrusted)
   ASSERT_TRUE(trustDomain.SetCertTrust(signerCertDER,
                                        TrustLevel::ActivelyDistrusted));
   Input responseInput;
-  ASSERT_EQ(Success,
+  ASSERT_EQ(Input::OK,
             responseInput.Init(responseString.data(),
                                responseString.length()));
   bool expired;

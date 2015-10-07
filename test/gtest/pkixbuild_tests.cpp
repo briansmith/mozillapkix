@@ -22,12 +22,17 @@
  * limitations under the License.
  */
 
+#if defined(_MSC_VER)
+ // C4548: expression before comma has no effect; expected expression with
+ //        side-effect.
+#pragma warning(disable: 4548)
+#endif
+
 #if defined(_MSC_VER) && _MSC_VER < 1900
 // When building with -D_HAS_EXCEPTIONS=0, MSVC's <xtree> header triggers
 // warning C4702: unreachable code.
 // https://connect.microsoft.com/VisualStudio/feedback/details/809962
-#pragma warning(push)
-#pragma warning(disable: 4702)
+#pragma warning(push, 3)
 #endif
 
 #include <map>
@@ -126,13 +131,12 @@ private:
     ByteString subjectDER(InputToByteString(encodedIssuerName));
     ByteString certDER(subjectDERToCertDER[subjectDER]);
     Input derCert;
-    Result rv = derCert.Init(certDER.data(), certDER.length());
-    if (rv != Success) {
-      return rv;
+    if (derCert.Init(certDER.data(), certDER.length()) != Input::OK) {
+      return Result::ERROR_BAD_DER;
     }
     bool keepGoing;
-    rv = checker.Check(derCert, nullptr/*additionalNameConstraints*/,
-                       keepGoing);
+    Result rv = checker.Check(derCert, nullptr/*additionalNameConstraints*/,
+                              keepGoing);
     if (rv != Success) {
       return rv;
     }
@@ -178,7 +182,7 @@ TEST_F(pkixbuild, MaxAcceptableCertChainLength)
   {
     ByteString leafCACert(trustDomain.GetLeafCACertDER());
     Input certDER;
-    ASSERT_EQ(Success, certDER.Init(leafCACert.data(), leafCACert.length()));
+    ASSERT_EQ(Input::OK, certDER.Init(leafCACert.data(), leafCACert.length()));
     ASSERT_EQ(Success,
               BuildCertChain(trustDomain, certDER, Now(),
                              EndEntityOrCA::MustBeCA,
@@ -193,7 +197,7 @@ TEST_F(pkixbuild, MaxAcceptableCertChainLength)
                                   EndEntityOrCA::MustBeEndEntity));
     ASSERT_FALSE(ENCODING_FAILED(certDER));
     Input certDERInput;
-    ASSERT_EQ(Success, certDERInput.Init(certDER.data(), certDER.length()));
+    ASSERT_EQ(Input::OK, certDERInput.Init(certDER.data(), certDER.length()));
     ASSERT_EQ(Success,
               BuildCertChain(trustDomain, certDERInput, Now(),
                              EndEntityOrCA::MustBeEndEntity,
@@ -213,7 +217,7 @@ TEST_F(pkixbuild, BeyondMaxAcceptableCertChainLength)
   {
     ByteString certDER(trustDomain.GetLeafCACertDER());
     Input certDERInput;
-    ASSERT_EQ(Success, certDERInput.Init(certDER.data(), certDER.length()));
+    ASSERT_EQ(Input::OK, certDERInput.Init(certDER.data(), certDER.length()));
     ASSERT_EQ(Result::ERROR_UNKNOWN_ISSUER,
               BuildCertChain(trustDomain, certDERInput, Now(),
                              EndEntityOrCA::MustBeCA,
@@ -228,7 +232,7 @@ TEST_F(pkixbuild, BeyondMaxAcceptableCertChainLength)
                                   EndEntityOrCA::MustBeEndEntity));
     ASSERT_FALSE(ENCODING_FAILED(certDER));
     Input certDERInput;
-    ASSERT_EQ(Success, certDERInput.Init(certDER.data(), certDER.length()));
+    ASSERT_EQ(Input::OK, certDERInput.Init(certDER.data(), certDER.length()));
     ASSERT_EQ(Result::ERROR_UNKNOWN_ISSUER,
               BuildCertChain(trustDomain, certDERInput, Now(),
                              EndEntityOrCA::MustBeEndEntity,
@@ -257,9 +261,8 @@ public:
                       /*out*/ TrustLevel& trustLevel) override
   {
     Input rootCert;
-    Result rv = rootCert.Init(rootDER.data(), rootDER.length());
-    if (rv != Success) {
-      return rv;
+    if (rootCert.Init(rootDER.data(), rootDER.length()) != Input::OK) {
+      return Result::ERROR_BAD_DER;
     }
     if (InputsAreEqual(candidateCert, rootCert)) {
       trustLevel = TrustLevel::TrustAnchor;
@@ -276,9 +279,8 @@ public:
     // know of one potential issuer, however, so we ignore it.
     bool keepGoing;
     Input rootCert;
-    Result rv = rootCert.Init(rootDER.data(), rootDER.length());
-    if (rv != Success) {
-      return rv;
+    if (rootCert.Init(rootDER.data(), rootDER.length()) != Input::OK) {
+      return Result::ERROR_BAD_DER;
     }
     return checker.Check(rootCert, nullptr, keepGoing);
   }
@@ -315,7 +317,7 @@ TEST_F(pkixbuild, NoRevocationCheckingForExpiredCert)
   EXPECT_FALSE(ENCODING_FAILED(certDER));
 
   Input cert;
-  ASSERT_EQ(Success, cert.Init(certDER.data(), certDER.length()));
+  ASSERT_EQ(Input::OK, cert.Init(certDER.data(), certDER.length()));
   ASSERT_EQ(Result::ERROR_EXPIRED_CERTIFICATE,
             BuildCertChain(expiredCertTrustDomain, cert, Now(),
                            EndEntityOrCA::MustBeEndEntity,
@@ -324,6 +326,8 @@ TEST_F(pkixbuild, NoRevocationCheckingForExpiredCert)
                            CertPolicyId::anyPolicy,
                            nullptr));
 }
+
+#if defined(MOZILLA_PKIX_TEST_HAVE_DSS)
 
 class DSSTrustDomain final : public EverythingFailsByDefaultTrustDomain
 {
@@ -362,7 +366,7 @@ TEST_F(pkixbuild_DSS, DSSEndEntityKeyNotAccepted)
                                            *issuerKey, sha256WithRSAEncryption()));
   ASSERT_FALSE(ENCODING_FAILED(cert));
   Input certDER;
-  ASSERT_EQ(Success, certDER.Init(cert.data(), cert.length()));
+  ASSERT_EQ(Input::OK, certDER.Init(cert.data(), cert.length()));
 
   ASSERT_EQ(Result::ERROR_UNSUPPORTED_KEYALG,
             BuildCertChain(trustDomain, certDER, Now(),
@@ -372,6 +376,8 @@ TEST_F(pkixbuild_DSS, DSSEndEntityKeyNotAccepted)
                            CertPolicyId::anyPolicy,
                            nullptr/*stapledOCSPResponse*/));
 }
+
+#endif // defined(MOZILLA_PKIX_TEST_HAVE_DSS)
 
 class IssuerNameCheckTrustDomain final : public DefaultCryptoTrustDomain
 {
@@ -394,7 +400,7 @@ public:
   Result FindIssuer(Input, IssuerChecker& checker, Time) override
   {
     Input issuerInput;
-    EXPECT_EQ(Success, issuerInput.Init(issuer.data(), issuer.length()));
+    EXPECT_EQ(Input::OK, issuerInput.Init(issuer.data(), issuer.length()));
     bool keepGoing;
     EXPECT_EQ(Success,
               checker.Check(issuerInput, nullptr /*additionalNameConstraints*/,
@@ -459,8 +465,8 @@ TEST_P(pkixbuild_IssuerNameCheck, MatchingName)
   ASSERT_FALSE(ENCODING_FAILED(subjectCertDER));
 
   Input subjectCertDERInput;
-  ASSERT_EQ(Success, subjectCertDERInput.Init(subjectCertDER.data(),
-                                              subjectCertDER.length()));
+  ASSERT_EQ(Input::OK, subjectCertDERInput.Init(subjectCertDER.data(),
+                                                subjectCertDER.length()));
 
   IssuerNameCheckTrustDomain trustDomain(issuerCertDER, !params.matches);
   ASSERT_EQ(params.matches ? Success : Result::ERROR_UNKNOWN_ISSUER,

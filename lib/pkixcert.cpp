@@ -99,8 +99,13 @@ BackCert::Init()
   if (rv != Success) {
     return rv;
   }
+  Input subjectPublicKeyInfo;
   rv = der::ExpectTagAndGetTLV(tbsCertificate, der::SEQUENCE,
                                subjectPublicKeyInfo);
+  if (rv != Success) {
+    return rv;
+  }
+  rv = publicKey.Init(endEntityOrCA, subjectPublicKeyInfo);
   if (rv != Success) {
     return rv;
   }
@@ -284,7 +289,7 @@ BackCert::RememberExtension(Reader& extnID, Input extnValue,
     if (extnValue.GetLength() == 0 && !emptyValueAllowed) {
       return Result::ERROR_EXTENSION_VALUE_INVALID;
     }
-    if (out->Init(extnValue) != Success) {
+    if (out->Init(extnValue) != Input::OK) {
       // Duplicate extension
       return Result::ERROR_EXTENSION_VALUE_INVALID;
     }

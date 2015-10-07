@@ -48,7 +48,7 @@ TEST_F(pkixder_pki_types_tests, CertificateSerialNumber)
   ASSERT_EQ(Success, CertificateSerialNumber(reader, item));
 
   Input expected;
-  ASSERT_EQ(Success,
+  ASSERT_EQ(Input::OK,
             expected.Init(DER_CERT_SERIAL + 2, sizeof DER_CERT_SERIAL - 2));
   ASSERT_TRUE(InputsAreEqual(expected, item));
 }
@@ -67,7 +67,7 @@ TEST_F(pkixder_pki_types_tests, CertificateSerialNumberLongest)
   ASSERT_EQ(Success, CertificateSerialNumber(reader, item));
 
   Input expected;
-  ASSERT_EQ(Success,
+  ASSERT_EQ(Input::OK,
             expected.Init(DER_CERT_SERIAL_LONGEST + 2,
                           sizeof DER_CERT_SERIAL_LONGEST - 2));
   ASSERT_TRUE(InputsAreEqual(expected, item));
@@ -238,7 +238,7 @@ TEST_P(pkixder_DigestAlgorithmIdentifier_Valid, Valid)
 
   {
     Input input;
-    ASSERT_EQ(Success, input.Init(param.der, param.derLength));
+    ASSERT_EQ(Input::OK, input.Init(param.der, param.derLength));
     Reader reader(input);
     DigestAlgorithm alg;
     ASSERT_EQ(Success, DigestAlgorithmIdentifier(reader, alg));
@@ -254,7 +254,7 @@ TEST_P(pkixder_DigestAlgorithmIdentifier_Valid, Valid)
     derWithNullParam[param.derLength + 1] = 0x00; // length zero
 
     Input input;
-    ASSERT_EQ(Success, input.Init(derWithNullParam, param.derLength + 2));
+    ASSERT_EQ(Input::OK, input.Init(derWithNullParam, param.derLength + 2));
     Reader reader(input);
     DigestAlgorithm alg;
     ASSERT_EQ(Success, DigestAlgorithmIdentifier(reader, alg));
@@ -292,7 +292,7 @@ TEST_P(pkixder_DigestAlgorithmIdentifier_Invalid, Invalid)
 {
   const InvalidAlgorithmIdentifierTestInfo& param(GetParam());
   Input input;
-  ASSERT_EQ(Success, input.Init(param.der, param.derLength));
+  ASSERT_EQ(Input::OK, input.Init(param.der, param.derLength));
   Reader reader(input);
   DigestAlgorithm alg;
   ASSERT_EQ(Result::ERROR_INVALID_ALGORITHM,
@@ -388,7 +388,7 @@ TEST_P(pkixder_SignatureAlgorithmIdentifierValue_Valid, Valid)
 
   {
     Input input;
-    ASSERT_EQ(Success, input.Init(param.der, param.derLength));
+    ASSERT_EQ(Input::OK, input.Init(param.der, param.derLength));
     Reader reader(input);
     PublicKeyAlgorithm publicKeyAlg;
     DigestAlgorithm digestAlg;
@@ -407,7 +407,7 @@ TEST_P(pkixder_SignatureAlgorithmIdentifierValue_Valid, Valid)
     derWithNullParam[param.derLength + 1] = 0x00; // length zero
 
     Input input;
-    ASSERT_EQ(Success, input.Init(derWithNullParam, param.derLength + 2));
+    ASSERT_EQ(Input::OK, input.Init(derWithNullParam, param.derLength + 2));
     Reader reader(input);
     PublicKeyAlgorithm publicKeyAlg;
     DigestAlgorithm digestAlg;
@@ -464,7 +464,7 @@ TEST_P(pkixder_SignatureAlgorithmIdentifier_Invalid, Invalid)
 {
   const InvalidAlgorithmIdentifierTestInfo& param(GetParam());
   Input input;
-  ASSERT_EQ(Success, input.Init(param.der, param.derLength));
+  ASSERT_EQ(Input::OK, input.Init(param.der, param.derLength));
   Reader reader(input);
   der::PublicKeyAlgorithm publicKeyAlg;
   DigestAlgorithm digestAlg;

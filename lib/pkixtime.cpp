@@ -25,7 +25,7 @@
 #include "pkix/Time.h"
 #include "pkixutil.h"
 
-#ifdef WIN32
+#ifdef _WIN32
 #ifdef _MSC_VER
 #pragma warning(push, 3)
 #endif
@@ -44,7 +44,7 @@ Now()
 {
   uint64_t seconds;
 
-#ifdef WIN32
+#ifdef _WIN32
   // "Contains a 64-bit value representing the number of 100-nanosecond
   // intervals since January 1, 1601 (UTC)."
   //   - http://msdn.microsoft.com/en-us/library/windows/desktop/ms724284(v=vs.85).aspx

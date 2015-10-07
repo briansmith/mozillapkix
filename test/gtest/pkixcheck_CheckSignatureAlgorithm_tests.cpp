@@ -229,7 +229,7 @@ TEST_P(pkixcheck_CheckSignatureAlgorithm, CheckSignatureAlgorithm)
   const CheckSignatureAlgorithmTestParams& params(GetParam());
 
   Input signatureValueInput;
-  ASSERT_EQ(Success,
+  ASSERT_EQ(Input::OK,
             signatureValueInput.Init(params.signatureValue.data(),
                                      params.signatureValue.length()));
 
@@ -237,12 +237,12 @@ TEST_P(pkixcheck_CheckSignatureAlgorithm, CheckSignatureAlgorithm)
     trustDomain(params.signatureLengthInBytes * 8);
 
   der::SignedDataWithSignature signedData;
-  ASSERT_EQ(Success,
+  ASSERT_EQ(Input::OK,
             signedData.algorithm.Init(params.signatureAlgorithmValue.data(),
                                       params.signatureAlgorithmValue.length()));
 
   ByteString dummySignature(params.signatureLengthInBytes, 0xDE);
-  ASSERT_EQ(Success,
+  ASSERT_EQ(Input::OK,
             signedData.signature.Init(dummySignature.data(),
                                       dummySignature.length()));
 
@@ -283,7 +283,7 @@ public:
     EXPECT_FALSE(ENCODING_FAILED(issuer));
 
     Input issuerInput;
-    EXPECT_EQ(Success, issuerInput.Init(issuer.data(), issuer.length()));
+    EXPECT_EQ(Input::OK, issuerInput.Init(issuer.data(), issuer.length()));
 
     bool keepGoing;
     EXPECT_EQ(Success, checker.Check(issuerInput, nullptr, keepGoing));
@@ -344,7 +344,7 @@ TEST_F(pkixcheck_CheckSignatureAlgorithm, BuildCertChain)
   ASSERT_FALSE(ENCODING_FAILED(subject));
 
   Input subjectInput;
-  ASSERT_EQ(Success, subjectInput.Init(subject.data(), subject.length()));
+  ASSERT_EQ(Input::OK, subjectInput.Init(subject.data(), subject.length()));
   pkixcheck_CheckSignatureAlgorithm_BuildCertChain_TrustDomain
     trustDomain(issuer);
   Result rv = BuildCertChain(trustDomain, subjectInput, Now(),

@@ -30,7 +30,7 @@
 namespace mozilla { namespace pkix {
 
 static Result BuildForward(TrustDomain& trustDomain,
-                           const BackCert& subject,
+                           BackCert& subject,
                            Time time,
                            KeyUsage requiredKeyUsageIfPresent,
                            KeyPurposeId requiredEKUIfPresent,
@@ -164,8 +164,8 @@ PathBuildingStep::Check(Input potentialIssuerDER,
   bool loopDetected = false;
   for (const BackCert* prev = potentialIssuer.childCert;
        !loopDetected && prev != nullptr; prev = prev->childCert) {
-    if (InputsAreEqual(potentialIssuer.GetSubjectPublicKeyInfo(),
-                       prev->GetSubjectPublicKeyInfo()) &&
+    if (InputsAreEqual(potentialIssuer.GetPublicKey().GetSubjectPublicKeyInfo(),
+                       prev->GetPublicKey().GetSubjectPublicKeyInfo()) &&
         InputsAreEqual(potentialIssuer.GetSubject(), prev->GetSubject())) {
       // XXX: error code
       return RecordResult(Result::ERROR_UNKNOWN_ISSUER, keepGoing);
@@ -210,9 +210,8 @@ PathBuildingStep::Check(Input potentialIssuerDER,
     }
   }
 
-  rv = VerifySignedDigest(trustDomain, subjectSignaturePublicKeyAlg,
-                          subjectSignature,
-                          potentialIssuer.GetSubjectPublicKeyInfo());
+  rv = potentialIssuer.GetPublicKey().VerifySignedDigest(
+        trustDomain, subjectSignaturePublicKeyAlg, subjectSignature);
   if (rv != Success) {
     return RecordResult(rv, keepGoing);
   }
@@ -222,7 +221,7 @@ PathBuildingStep::Check(Input potentialIssuerDER,
   // responders return an error when asked for the status of an expired
   // certificate.
   if (deferredSubjectError != Result::ERROR_EXPIRED_CERTIFICATE) {
-    CertID certID(subject.GetIssuer(), potentialIssuer.GetSubjectPublicKeyInfo(),
+    CertID certID(subject.GetIssuer(), potentialIssuer.GetPublicKey(),
                   subject.GetSerialNumber());
     Time notBefore(Time::uninitialized);
     Time notAfter(Time::uninitialized);
@@ -252,7 +251,7 @@ PathBuildingStep::Check(Input potentialIssuerDER,
 // pkix/pkix.h.
 static Result
 BuildForward(TrustDomain& trustDomain,
-             const BackCert& subject,
+             BackCert& subject,
              Time time,
              KeyUsage requiredKeyUsageIfPresent,
              KeyPurposeId requiredEKUIfPresent,

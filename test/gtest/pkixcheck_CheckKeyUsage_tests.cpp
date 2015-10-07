@@ -79,7 +79,7 @@ TEST_F(pkixcheck_CheckKeyUsage, EE_empty)
                            KeyUsage::digitalSignature));
   static const uint8_t dummy = 0x00;
   Input empty_nonnull;
-  ASSERT_EQ(Success, empty_nonnull.Init(&dummy, 0));
+  ASSERT_EQ(Input::OK, empty_nonnull.Init(&dummy, 0));
   ASSERT_BAD(CheckKeyUsage(EndEntityOrCA::MustBeEndEntity, &empty_nonnull,
                            KeyUsage::digitalSignature));
 }
@@ -98,7 +98,7 @@ TEST_F(pkixcheck_CheckKeyUsage, CA_empty)
                            KeyUsage::keyCertSign));
   static const uint8_t dummy = 0x00;
   Input empty_nonnull;
-  ASSERT_EQ(Success, empty_nonnull.Init(&dummy, 0));
+  ASSERT_EQ(Input::OK, empty_nonnull.Init(&dummy, 0));
   ASSERT_BAD(CheckKeyUsage(EndEntityOrCA::MustBeCA, &empty_nonnull,
                            KeyUsage::keyCertSign));
 }

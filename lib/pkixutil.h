@@ -52,6 +52,11 @@ public:
 
   Result Init();
 
+  Result ParseAndCheckPublicKey(TrustDomain& trustDomain)
+  {
+    return publicKey.ParseAndCheck(trustDomain);
+  }
+
   const Input GetDER() const { return der; }
   const der::SignedDataWithSignature& GetSignedData() const {
     return signedData;
@@ -66,10 +71,7 @@ public:
   // RFC 5280 names for everything.
   const Input GetValidity() const { return validity; }
   const Input GetSubject() const { return subject; }
-  const Input GetSubjectPublicKeyInfo() const
-  {
-    return subjectPublicKeyInfo;
-  }
+  const PublicKey& GetPublicKey() const { return publicKey; }
   const Input* GetAuthorityInfoAccess() const
   {
     return MaybeInput(authorityInfoAccess);
@@ -133,7 +135,7 @@ private:
   // RFC 5280 names for everything.
   Input validity;
   Input subject;
-  Input subjectPublicKeyInfo;
+  PublicKey publicKey;
 
   Input authorityInfoAccess;
   Input basicConstraints;
@@ -174,9 +176,8 @@ public:
     if (numItems >= MAX_LENGTH) {
       return Result::FATAL_ERROR_INVALID_ARGS;
     }
-    Result rv = items[numItems].Init(der); // structure assignment
-    if (rv != Success) {
-      return rv;
+    if (items[numItems].Init(der) != Input::OK) {
+      return Result::ERROR_BAD_DER;
     }
     ++numItems;
     return Success;
@@ -210,15 +211,10 @@ Result DigestSignedData(TrustDomain& trustDomain,
                         /*out*/ der::PublicKeyAlgorithm& publicKeyAlg,
                         /*out*/ SignedDigest& signedDigest);
 
-Result VerifySignedDigest(TrustDomain& trustDomain,
-                          der::PublicKeyAlgorithm publicKeyAlg,
-                          const SignedDigest& signedDigest,
-                          Input signerSubjectPublicKeyInfo);
-
-// Combines DigestSignedData and VerifySignedDigest
+// Combines DigestSignedData and PublicKey::VerifySignedDigest
 Result VerifySignedData(TrustDomain& trustDomain,
                         const der::SignedDataWithSignature& signedData,
-                        Input signerSubjectPublicKeyInfo);
+                        const PublicKey& publicKey);
 
 // In a switch over an enum, sometimes some compilers are not satisfied that
 // all control flow paths have been considered unless there is a default case.
